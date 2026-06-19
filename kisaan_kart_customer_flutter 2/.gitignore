@@ -111,3 +111,5 @@ linux/flutter/ephemeral/
 
 # Generated Plugin Registrant
 lib/generated_plugin_registrant.dart
+
+__MACOSX/
