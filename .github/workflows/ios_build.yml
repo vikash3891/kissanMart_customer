@@ -1,4 +1,4 @@
-name: Flutter iOS Build
+name: 🚀 Flutter iOS IPA Build
 
 on:
   workflow_dispatch:
@@ -12,24 +12,81 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
-      - run: flutter pub get
+      - name: Flutter Version
+        run: flutter --version
+
+      - name: Install Dependencies
+        run: flutter pub get
 
       - name: Install CocoaPods
         run: |
+          sudo gem install cocoapods
           cd ios
-          pod install --repo-update
+          pod install
           cd ..
 
       - name: Build iOS
         run: flutter build ios --release --no-codesign
 
-      - uses: actions/upload-artifact@v4
+      - name: Archive App
+        run: |
+          xcodebuild \
+          -workspace ios/Runner.xcworkspace \
+          -scheme Runner \
+          -configuration Release \
+          -sdk iphoneos \
+          -archivePath build/Runner.xcarchive \
+          archive \
+          CODE_SIGNING_ALLOWED=NO
+
+      - name: Create ExportOptions.plist
+        run: |
+          cat > ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+          "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>development</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>stripSwiftSymbols</key>
+              <true/>
+              <key>compileBitcode</key>
+              <false/>
+          </dict>
+          </plist>
+          EOF
+
+      - name: Export IPA
+        run: |
+          mkdir -p build/ipa
+
+          xcodebuild \
+          -exportArchive \
+          -archivePath build/Runner.xcarchive \
+          -exportOptionsPlist ExportOptions.plist \
+          -exportPath build/ipa \
+          CODE_SIGNING_ALLOWED=NO || true
+
+      - name: Upload IPA Folder
+        uses: actions/upload-artifact@v4
         with:
-          name: ios-build
-          path: build/ios
+          name: ios-ipa
+          path: build/ipa
+
+      - name: Upload Archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcarchive
+          path: build/Runner.xcarchive
