@@ -1,0 +1,22 @@
+# flutter_native_splash configuration for Kisaan Kart
+# Generates native splash screens for Android and iOS
+
+flutter_native_splash:
+  # Background color — soft green (#F2FFF2)
+  color: "#F2FFF2"
+
+  # Dark mode background — deep green-black
+  color_dark: "#0D1F12"
+
+  # Logo image (centered on the splash screen)
+  image: assets/images/splash_logo.png
+
+  # Dark mode logo — same image
+  image_dark: assets/images/splash_logo.png
+
+  # Android 12 specific settings
+  android_12:
+    color: "#F2FFF2"
+    color_dark: "#0D1F12"
+    image: assets/images/splash_logo.png
+    image_dark: assets/images/splash_logo.png

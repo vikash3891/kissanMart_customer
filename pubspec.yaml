@@ -1,0 +1,41 @@
+name: kisaan_kart_customer_flutter
+description: Kisaan Kart customer application Flutter MVP for Android, iOS and Web.
+publish_to: 'none'
+version: 1.1.0+2
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  http: ^1.2.1
+  provider: ^6.1.2
+  shared_preferences: ^2.2.3
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+  share_plus: any
+  speech_to_text: any
+  connectivity_plus: any
+  google_maps_flutter: ^2.17.1
+  geolocator: ^14.0.3
+  geocoding: ^5.0.0
+  permission_handler: ^12.0.3
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  image_picker: ^1.2.3
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  flutter_native_splash: ^2.4.3
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
