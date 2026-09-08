@@ -7,6 +7,7 @@ class AppAboutScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
       appBar: AppBar(title: const Text('About')),
       body: ListView(
@@ -20,7 +21,7 @@ class AppAboutScreen extends StatelessWidget {
                   width: 80,
                   height: 80,
                   decoration: BoxDecoration(
-                    color: kLightGreen,
+                    color: colors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Center(
@@ -33,9 +34,9 @@ class AppAboutScreen extends StatelessWidget {
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'Version 1.1.0 (Build 2)',
-                  style: TextStyle(color: Colors.grey),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               ],
             ),
@@ -47,7 +48,7 @@ class AppAboutScreen extends StatelessWidget {
             elevation: 0,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,7 +60,7 @@ class AppAboutScreen extends StatelessWidget {
                   Text(
                     'Kisaan Kart connects farmers directly with consumers, ensuring fresh produce at fair prices while supporting local agriculture. '
                     'We believe in sustainable farming, transparent supply chains, and delivering farm-fresh goodness to your doorstep.',
-                    style: TextStyle(color: Colors.black87, height: 1.5),
+                    style: TextStyle(color: context.colors.textSecondary, height: 1.5),
                   ),
                 ],
               ),
@@ -141,7 +142,7 @@ class AppAboutScreen extends StatelessWidget {
           Center(
             child: Text(
               '© 2025 Kisaan Kart. All rights reserved.',
-              style: TextStyle(color: Colors.grey[500], fontSize: 12),
+              style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
             ),
           ),
         ],
@@ -162,7 +163,7 @@ class _FeatureRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Icon(icon, color: kGreen, size: 20),
+          Icon(icon, color: context.colors.primary, size: 20),
           const SizedBox(width: 12),
           Expanded(child: Text(text)),
         ],

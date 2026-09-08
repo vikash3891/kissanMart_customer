@@ -58,4 +58,8 @@ class ProfileProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
   }
+
+  void clear() {
+    _profile = null; _error = null; notifyListeners();
+  }
 }

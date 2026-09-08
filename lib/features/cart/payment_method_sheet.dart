@@ -38,6 +38,7 @@ class _PaymentMethodSheetState extends State<PaymentMethodSheet> {
     final paymentProv = context.watch<PaymentProvider>();
     final gateways = paymentProv.availableGateways;
     final selected = paymentProv.selectedMethod;
+    final colors = context.colors;
 
     return Container(
       padding: EdgeInsets.fromLTRB(
@@ -46,9 +47,9 @@ class _PaymentMethodSheetState extends State<PaymentMethodSheet> {
         20,
         MediaQuery.of(context).viewInsets.bottom + 20,
       ),
-      decoration: const BoxDecoration(
-        color: kBg,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Form(
         key: _formKey,
@@ -62,27 +63,27 @@ class _PaymentMethodSheetState extends State<PaymentMethodSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.grey[300],
+                  color: colors.disabled,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
             ),
             const SizedBox(height: 16),
 
-            const Text(
+            Text(
               'Select Payment Method',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: kDark,
+                color: colors.textPrimary,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Amount to pay: ₹${widget.amount.toStringAsFixed(2)}',
-              style: const TextStyle(
+              style: TextStyle(
                   fontSize: 14,
-                  color: Colors.grey,
+                  color: colors.textSecondary,
                   fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
@@ -98,11 +99,11 @@ class _PaymentMethodSheetState extends State<PaymentMethodSheet> {
 
                   return Card(
                     margin: const EdgeInsets.only(bottom: 8),
-                    color: Colors.white,
+                    color: colors.card,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
-                        color: isSelected ? kGreen : Colors.grey[200]!,
+                        color: isSelected ? colors.primary : colors.border,
                         width: isSelected ? 2 : 1,
                       ),
                     ),
@@ -117,11 +118,11 @@ class _PaymentMethodSheetState extends State<PaymentMethodSheet> {
                               paymentProv.selectMethod(val);
                             }
                           },
-                          activeColor: kGreen,
+                          activeColor: colors.primary,
                           title: Row(
                             children: [
                               Icon(_getIconForMethod(gateway.method),
-                                  color: kGreen),
+                                  color: colors.primary),
                               const SizedBox(width: 12),
                               Text(
                                 gateway.displayName,
@@ -151,7 +152,7 @@ class _PaymentMethodSheetState extends State<PaymentMethodSheet> {
                   }
                 },
                 style: FilledButton.styleFrom(
-                  backgroundColor: kGreen,
+                  backgroundColor: colors.primary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

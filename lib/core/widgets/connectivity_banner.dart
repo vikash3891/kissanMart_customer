@@ -78,11 +78,12 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Column(
       children: [
         if (_isOffline)
           Material(
-            color: Colors.red[800],
+            color: colors.danger,
             child: SafeArea(
               bottom: false,
               child: Container(
@@ -128,7 +129,7 @@ class _ConnectivityBannerState extends State<ConnectivityBanner> {
           ),
         if (_showBackOnline)
           Material(
-            color: kGreen,
+            color: colors.success,
             child: SafeArea(
               bottom: false,
               child: Container(

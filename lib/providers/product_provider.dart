@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/services.dart';
+import 'dart:async';
 
 import '../core/storage/hive_storage_service.dart';
 import '../models/product.dart';
@@ -63,6 +64,9 @@ class ProductProvider extends ChangeNotifier {
   bool get isLoadingMore => _isLoadingMore;
   bool get isListening => _isListening;
   String? get error => _error;
+  String get partialText => _partialText;
+
+  String _partialText = '';
 
   ProductProvider() {
     _initLocalData();
@@ -206,23 +210,77 @@ class ProductProvider extends ChangeNotifier {
 
   // ─── Voice Search (Feature 5) ─────────────────────────────────────────────
 
-  Future<void> startVoiceSearch(Function(String) onResult) async {
+  Future<bool> startVoiceSearch(Function(String) onResult) async {
     try {
-      final available = await _speech.initialize();
-      if (available) {
-        _isListening = true;
-        notifyListeners();
-        _speech.listen(onResult: (val) {
-          if (val.finalResult) {
-            onResult(val.recognizedWords);
+      // Always (re-)initialize — required on some Android devices
+      final available = await _speech.initialize(
+        onError: (error) {
+          _isListening = false;
+          notifyListeners();
+        },
+        onStatus: (status) {
+          if (status == 'done' || status == 'notListening') {
             _isListening = false;
             notifyListeners();
           }
-        });
+        },
+        debugLogging: false,
+      );
+
+      if (!available) {
+        _isListening = false;
+        notifyListeners();
+        return false; // Microphone not available / permission denied
       }
+
+      _isListening = true;
+      _partialText = '';
+      notifyListeners();
+
+      Timer? silenceTimer;
+
+      await _speech.listen(
+        onResult: (val) {
+          if (val.recognizedWords.isNotEmpty) {
+            _partialText = val.recognizedWords;
+            notifyListeners(); // Show live transcription in UI
+
+            // Cancel previous timer
+            silenceTimer?.cancel();
+
+            if (val.finalResult) {
+              // Engine explicitly says this is the final result
+              silenceTimer?.cancel();
+              onResult(val.recognizedWords);
+              _isListening = false;
+              _partialText = '';
+              notifyListeners();
+            } else {
+              // Engine gave partial result. Start a 1.5s timer.
+              // If user stops speaking, this will fire and execute the search.
+              silenceTimer = Timer(const Duration(milliseconds: 1500), () {
+                if (_isListening) {
+                  onResult(val.recognizedWords);
+                  _speech.stop();
+                  _isListening = false;
+                  _partialText = '';
+                  notifyListeners();
+                }
+              });
+            }
+          }
+        },
+        listenFor: const Duration(seconds: 10),
+        pauseFor: const Duration(seconds: 2),
+        partialResults: true,
+        cancelOnError: true,
+        listenMode: stt.ListenMode.search,
+      );
+      return true;
     } catch (_) {
       _isListening = false;
       notifyListeners();
+      return false;
     }
   }
 
@@ -253,7 +311,7 @@ class ProductProvider extends ChangeNotifier {
         maxPrice: _maxPrice,
         sort: _sort,
         page: 1,
-        limit: 10,
+        limit: 20,
       );
 
       if (cached != null) {
@@ -276,7 +334,7 @@ class ProductProvider extends ChangeNotifier {
         maxPrice: _maxPrice,
         sort: _sort,
         page: isLoadMore ? _currentPage : 1,
-        limit: 10,
+        limit: 20,
       );
 
       final mappedProducts =
@@ -310,15 +368,18 @@ class ProductProvider extends ChangeNotifier {
   }
 
   Future<void> searchProducts(String query) async {
-    _searchQuery = query;
-    addSearchQuery(query);
-    ProductAnalyticsService.instance.searchProduct(query);
+    final trimmedQuery = query.trim();
+    _searchQuery = trimmedQuery;
+    addSearchQuery(trimmedQuery);
+    ProductAnalyticsService.instance.searchProduct(trimmedQuery);
     await loadProducts(isLoadMore: false);
   }
 
-  Future<void> applyCategory(int? categoryId) async {
+  void applyCategory(int? categoryId) {
+    clearFilters(notify: false);
     _categoryId = categoryId;
-    await loadProducts(isLoadMore: false);
+    notifyListeners();
+    loadProducts(isLoadMore: false);
   }
 
   Future<void> applyPriceFilter(double? minPrice, double? maxPrice) async {
@@ -402,14 +463,17 @@ class ProductProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> clearFilters({bool notify = true}) async {
+  void clearFilters({bool notify = true}) {
     _searchQuery = '';
     _categoryId = null;
     _minPrice = null;
     _maxPrice = null;
     _sort = null;
+    _currentPage = 1;
+    _products.clear();
+    _error = null;
     if (notify) {
-      await loadProducts(isLoadMore: false);
+      loadProducts(isLoadMore: false);
     }
   }
 
@@ -430,6 +494,9 @@ class ProductProvider extends ChangeNotifier {
   // ─── Mapper & Serialization Helpers ────────────────────────────────────────
 
   Product _mapApiProduct(dynamic p) {
+    // Use discountPrice as selling price if it's set and > 0,
+    // otherwise fall back to the regular price (no discount case).
+    final double sellingPrice = (p.discountPrice > 0) ? p.discountPrice : p.price;
     return Product(
       id: p.id,
       store: p.brand,
@@ -439,7 +506,7 @@ class ProductProvider extends ChangeNotifier {
       type: p.category.name,
       image: p.imageUrl ?? '',
       unit: p.unit,
-      price: p.discountPrice,
+      price: sellingPrice,
       mrp: p.price,
       rating: 4.5,
       reviews: 0,

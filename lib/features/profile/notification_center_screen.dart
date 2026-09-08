@@ -118,31 +118,32 @@ class _NotificationTile extends StatelessWidget {
     }
   }
 
-  Color _colorForType(String type) {
+  Color _colorForType(BuildContext context, String type) {
     switch (type) {
       case 'order':
-        return Colors.blue;
+        return context.colors.primary;
       case 'coupon':
-        return Colors.orange;
+        return context.colors.offer;
       case 'wishlist':
-        return Colors.red;
+        return context.colors.danger;
       case 'flash_sale':
-        return Colors.purple;
+        return context.colors.primary;
       default:
-        return kGreen;
+        return context.colors.primary;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.read<NotificationProvider>();
-    final color = _colorForType(notification.type);
+    final colors = context.colors;
+    final color = _colorForType(context, notification.type);
 
     return Dismissible(
       key: Key(notification.id),
       direction: DismissDirection.endToStart,
       background: Container(
-        color: Colors.red,
+        color: colors.danger,
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         child: const Icon(Icons.delete, color: Colors.white),
@@ -174,7 +175,7 @@ class _NotificationTile extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               _formatTime(notification.createdAt),
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: TextStyle(fontSize: 12, color: colors.textSecondary),
             ),
           ],
         ),

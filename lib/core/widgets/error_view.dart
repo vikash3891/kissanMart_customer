@@ -17,6 +17,7 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     final isNoInternet = error.toLowerCase().contains('socketexception') ||
         error.toLowerCase().contains('network') ||
         error.toLowerCase().contains('connection') ||
@@ -32,12 +33,14 @@ class ErrorView extends StatelessWidget {
             Icon(
               isNoInternet ? Icons.wifi_off : Icons.error_outline,
               size: 64,
-              color: Colors.red[400],
+              color: colors.danger,
             ),
             const SizedBox(height: 16),
             Text(
               isNoInternet ? 'No Internet Connection' : 'Server Error',
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(
@@ -45,11 +48,11 @@ class ErrorView extends StatelessWidget {
                   ? 'Please check your internet connection and try again.'
                   : 'Something went wrong on our end. Please try again later.',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.black54),
+              style: TextStyle(color: colors.textSecondary),
             ),
             const SizedBox(height: 24),
             FilledButton(
-              style: FilledButton.styleFrom(backgroundColor: kGreen),
+              style: FilledButton.styleFrom(backgroundColor: colors.primary),
               onPressed: onRetry,
               child: const Text('Retry'),
             ),
@@ -75,6 +78,7 @@ class EmptyStateView extends StatelessWidget {
     final productProvider = context.watch<ProductProvider>();
     final recents = productProvider.recentProducts;
     final suggestions = productProvider.products.take(4).toList();
+    final colors = context.colors;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24.0),
@@ -89,14 +93,16 @@ class EmptyStateView extends StatelessWidget {
           const SizedBox(height: 16),
           Text(
             message,
-            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Try adjusting your search or filter options.',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black54),
+            style: TextStyle(color: colors.textSecondary),
           ),
           const SizedBox(height: 16),
           Row(
@@ -109,7 +115,7 @@ class EmptyStateView extends StatelessWidget {
                 ),
               const SizedBox(width: 12),
               FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: kGreen),
+                style: FilledButton.styleFrom(backgroundColor: colors.primary),
                 onPressed: () => productProvider.loadProducts(),
                 child: const Text('Retry'),
               ),

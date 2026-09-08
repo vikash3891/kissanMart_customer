@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../design_system/app_colors.dart';
 
 class LoadingWidget extends StatelessWidget {
   final String? message;
@@ -6,17 +7,18 @@ class LoadingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2E7D32))),
+          CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(colors.primary)),
           if (message != null) ...[
             const SizedBox(height: 12),
             Text(
               message!,
-              style: const TextStyle(fontSize: 14, color: Colors.grey),
+              style: TextStyle(fontSize: 14, color: colors.textSecondary),
             ),
           ]
         ],

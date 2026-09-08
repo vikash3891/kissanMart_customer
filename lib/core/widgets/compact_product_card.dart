@@ -13,6 +13,7 @@ class CompactProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -32,7 +33,7 @@ class CompactProductCard extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: kLightGreen,
+                    color: colors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: ClipRRect(
@@ -66,8 +67,8 @@ class CompactProductCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 '₹${product.price.toStringAsFixed(0)}',
-                style: const TextStyle(
-                    fontWeight: FontWeight.w900, fontSize: 14, color: kGreen),
+                style: TextStyle(
+                    fontWeight: FontWeight.w900, fontSize: 14, color: colors.primary),
               ),
             ],
           ),

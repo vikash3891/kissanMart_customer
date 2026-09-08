@@ -83,4 +83,8 @@ class NotificationProvider extends ChangeNotifier {
     );
     await addNotification(n);
   }
+
+  void clear() {
+    _notifications = []; _error = null; notifyListeners();
+  }
 }

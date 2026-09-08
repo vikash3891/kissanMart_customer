@@ -127,8 +127,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Profile updated'), backgroundColor: Colors.green),
+        SnackBar(
+            content: const Text('Profile updated'),
+            backgroundColor: context.colors.primary),
       );
       Navigator.pop(context);
     }
@@ -137,75 +138,177 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProfileProvider>();
+    final colors = context.colors;
     final profile = provider.profile;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final hasLocalImage =
         _profileImagePath != null && File(_profileImagePath!).existsSync();
 
+    // Capitalize role properly: "customer" → "Customer"
+    final rawRole = profile?.role ?? 'customer';
+    final displayRole = rawRole.isEmpty
+        ? 'Customer'
+        : '${rawRole[0].toUpperCase()}${rawRole.substring(1).toLowerCase()}';
+
+    // Shared input decoration factory for uniform fields
+    InputDecoration _fieldDec({
+      required String label,
+      required IconData icon,
+      bool readOnly = false,
+    }) {
+      final bg = readOnly
+          ? (isDark
+              ? colors.surface.withValues(alpha: 0.5)
+              : const Color(0xFFF0F0F0))
+          : colors.surface;
+      return InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, size: 20),
+        filled: true,
+        fillColor: bg,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: colors.border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+              color: readOnly
+                  ? colors.border.withValues(alpha: 0.4)
+                  : colors.border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: colors.primary, width: 2),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: colors.danger),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: colors.danger, width: 2),
+        ),
+        labelStyle: TextStyle(
+          color: readOnly ? colors.textSecondary : colors.hint,
+          fontSize: 14,
+        ),
+      );
+    }
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Edit Profile')),
+      appBar: AppBar(
+        title: const Text('Edit Profile'),
+        centerTitle: true,
+      ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
         child: Form(
           key: _formKey,
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Avatar
-              GestureDetector(
-                onTap: _pickImage,
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 50,
-                      backgroundColor: kLightGreen,
-                      backgroundImage: hasLocalImage
-                          ? FileImage(File(_profileImagePath!))
-                          : null,
-                      child: !hasLocalImage
-                          ? Text(
-                              (profile?.name.isNotEmpty == true)
-                                  ? profile!.name[0].toUpperCase()
-                                  : '👤',
-                              style: const TextStyle(fontSize: 40),
-                            )
-                          : null,
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: kGreen,
-                        child: const Icon(Icons.camera_alt,
-                            color: Colors.white, size: 16),
+              // ── Avatar ─────────────────────────────────────────────────────
+              Center(
+                child: GestureDetector(
+                  onTap: _pickImage,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colors.primary.withValues(alpha: 0.3),
+                            width: 3,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: colors.primary.withValues(alpha: 0.15),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: CircleAvatar(
+                          radius: 52,
+                          backgroundColor:
+                              colors.primary.withValues(alpha: 0.1),
+                          backgroundImage: hasLocalImage
+                              ? FileImage(File(_profileImagePath!))
+                              : null,
+                          child: !hasLocalImage
+                              ? Text(
+                                  (profile?.name.isNotEmpty == true)
+                                      ? profile!.name[0].toUpperCase()
+                                      : '👤',
+                                  style: TextStyle(
+                                    fontSize: 40,
+                                    color: colors.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                )
+                              : null,
+                        ),
                       ),
-                    ),
-                  ],
+                      Positioned(
+                        bottom: 2,
+                        right: 2,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: colors.primary,
+                            shape: BoxShape.circle,
+                            border:
+                                Border.all(color: colors.surface, width: 2),
+                          ),
+                          padding: const EdgeInsets.all(6),
+                          child: const Icon(Icons.camera_alt,
+                              color: Colors.white, size: 16),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Center(
+                child: Text(
+                  'Tap to change photo',
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: colors.textSecondary),
                 ),
               ),
               const SizedBox(height: 32),
 
-              // Phone (read-only)
+              // ── Phone (read-only) ───────────────────────────────────────────
               TextFormField(
                 initialValue: profile?.phone ?? '',
                 readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Phone',
-                  prefixIcon: Icon(Icons.phone),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Color(0xFFF5F5F5),
+                style: TextStyle(
+                    color: colors.textSecondary,
+                    fontWeight: FontWeight.w500),
+                decoration: _fieldDec(
+                  label: 'Phone',
+                  icon: Icons.phone_outlined,
+                  readOnly: true,
                 ),
               ),
               const SizedBox(height: 16),
 
-              // Name
+              // ── Full Name ───────────────────────────────────────────────────
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Full Name',
-                  prefixIcon: Icon(Icons.person_outline),
-                  border: OutlineInputBorder(),
+                textCapitalization: TextCapitalization.words,
+                style: TextStyle(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w500),
+                decoration: _fieldDec(
+                  label: 'Full Name',
+                  icon: Icons.person_outline,
                 ),
                 validator: (v) {
                   if (v != null && v.isNotEmpty && v.trim().length < 2) {
@@ -216,15 +319,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Email
+              // ── Email ───────────────────────────────────────────────────────
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.email_outlined),
-                  border: OutlineInputBorder(),
-                ),
                 keyboardType: TextInputType.emailAddress,
+                style: TextStyle(
+                    color: colors.textPrimary,
+                    fontWeight: FontWeight.w500),
+                decoration: _fieldDec(
+                  label: 'Email',
+                  icon: Icons.email_outlined,
+                ),
                 validator: (v) {
                   if (v != null && v.isNotEmpty && !v.contains('@')) {
                     return 'Enter a valid email';
@@ -234,36 +339,49 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Role (read-only)
+              // ── Account Type (read-only, capitalized) ───────────────────────
               TextFormField(
-                initialValue: profile?.role ?? 'CUSTOMER',
+                initialValue: displayRole,
                 readOnly: true,
-                decoration: const InputDecoration(
-                  labelText: 'Account Type',
-                  prefixIcon: Icon(Icons.badge_outlined),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: Color(0xFFF5F5F5),
+                style: TextStyle(
+                    color: colors.textSecondary,
+                    fontWeight: FontWeight.w500),
+                decoration: _fieldDec(
+                  label: 'Account Type',
+                  icon: Icons.badge_outlined,
+                  readOnly: true,
                 ),
               ),
               const SizedBox(height: 32),
 
-              // Save button
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: FilledButton(
-                  onPressed: _hasChanges && !provider.loading ? _save : null,
-                  style: FilledButton.styleFrom(backgroundColor: kGreen),
-                  child: provider.loading
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Text('Save Changes',
-                          style: TextStyle(fontSize: 16)),
+              // ── Save Button ─────────────────────────────────────────────────
+              AnimatedOpacity(
+                opacity: _hasChanges ? 1.0 : 0.6,
+                duration: const Duration(milliseconds: 200),
+                child: SizedBox(
+                  height: 54,
+                  child: FilledButton(
+                    onPressed:
+                        _hasChanges && !provider.loading ? _save : null,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child: provider.loading
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white),
+                          )
+                        : const Text(
+                            'Save Changes',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w700),
+                          ),
+                  ),
                 ),
               ),
             ],

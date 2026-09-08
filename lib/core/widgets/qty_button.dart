@@ -19,6 +19,7 @@ class QtyButton extends StatelessWidget {
     final cart = context.watch<CartProvider>();
     final q = cart.qty(p);
     final isOutOfStock = p.stock <= 0 || !p.isAvailable;
+    final colors = context.colors;
 
     if (q == 0) {
       // Out of stock → show disabled label
@@ -27,13 +28,14 @@ class QtyButton extends StatelessWidget {
           label: '${p.name} is out of stock',
           child: OutlinedButton(
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.grey,
-              side: const BorderSide(color: Colors.grey),
+              foregroundColor: colors.disabled,
+              side: BorderSide(color: colors.disabled),
               visualDensity: VisualDensity.compact,
-              minimumSize: const Size(64, 36),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+              minimumSize: const Size(48, 24),
             ),
             onPressed: null,
-            child: const Text('OUT OF STOCK', style: TextStyle(fontSize: 10)),
+            child: const Text('OUT OF STOCK', style: TextStyle(fontSize: 8, fontWeight: FontWeight.bold)),
           ),
         );
       }
@@ -43,10 +45,11 @@ class QtyButton extends StatelessWidget {
         label: 'Add ${p.name} to cart',
         child: OutlinedButton(
           style: OutlinedButton.styleFrom(
-            foregroundColor: kGreen,
-            side: const BorderSide(color: kGreen),
+            foregroundColor: colors.primary,
+            side: BorderSide(color: colors.primary),
             visualDensity: VisualDensity.compact,
-            minimumSize: const Size(64, 36),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 0),
+            minimumSize: const Size(48, 24),
           ),
           onPressed: () async {
             final success = await context.read<CartProvider>().add(p);
@@ -60,15 +63,15 @@ class QtyButton extends StatelessWidget {
               }
             }
           },
-          child: const Text('ADD'),
+          child: const Text('ADD', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
         ),
       );
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: kGreen,
-        borderRadius: BorderRadius.circular(10),
+        color: colors.primary,
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -79,8 +82,8 @@ class QtyButton extends StatelessWidget {
             child: InkWell(
               onTap: () => context.read<CartProvider>().remove(p),
               child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                child: Icon(Icons.remove, color: Colors.white, size: 18),
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Icon(Icons.remove, color: Colors.white, size: 14),
               ),
             ),
           ),
@@ -92,7 +95,7 @@ class QtyButton extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
-                fontSize: 14,
+                fontSize: 12,
               ),
             ),
           ),
@@ -113,8 +116,8 @@ class QtyButton extends StatelessWidget {
                 }
               },
               child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                child: Icon(Icons.add, color: Colors.white, size: 18),
+                padding: EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Icon(Icons.add, color: Colors.white, size: 14),
               ),
             ),
           ),

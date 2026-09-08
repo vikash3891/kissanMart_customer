@@ -94,7 +94,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
 
     return Scaffold(
-      backgroundColor: kBg,
+      backgroundColor: context.colors.surface,
       body: Stack(
         children: [
           CustomScrollView(
@@ -106,19 +106,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 pinned: true,
                 elevation: _isCollapsed ? 1 : 0,
                 backgroundColor:
-                    _isCollapsed ? Colors.white : Colors.transparent,
+                    _isCollapsed ? context.colors.surface : Colors.transparent,
                 leading: IconButton(
                   icon: Container(
                     decoration: BoxDecoration(
                       color: _isCollapsed
                           ? Colors.transparent
-                          : Colors.black.withValues(alpha: 0.3),
+                          : context.colors.primary.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     padding: const EdgeInsets.all(8),
                     child: Icon(
                       Icons.arrow_back,
-                      color: _isCollapsed ? Colors.black87 : Colors.white,
+                      color: _isCollapsed ? context.colors.textPrimary : Colors.white,
                     ),
                   ),
                   onPressed: () => Navigator.pop(context),
@@ -129,7 +129,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       decoration: BoxDecoration(
                         color: _isCollapsed
                             ? Colors.transparent
-                            : Colors.black.withValues(alpha: 0.3),
+                            : context.colors.primary.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       padding: const EdgeInsets.all(8),
@@ -138,8 +138,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         child: Icon(
                           isFav ? Icons.favorite : Icons.favorite_border,
                           color: isFav
-                              ? Colors.red
-                              : (_isCollapsed ? Colors.black87 : Colors.white),
+                              ? context.colors.danger
+                              : (_isCollapsed ? context.colors.textPrimary : Colors.white),
                         ),
                       ),
                     ),
@@ -151,13 +151,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       decoration: BoxDecoration(
                         color: _isCollapsed
                             ? Colors.transparent
-                            : Colors.black.withValues(alpha: 0.3),
+                            : context.colors.primary.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
                       padding: const EdgeInsets.all(8),
                       child: Icon(
                         Icons.share,
-                        color: _isCollapsed ? Colors.black87 : Colors.white,
+                        color: _isCollapsed ? context.colors.textPrimary : Colors.white,
                       ),
                     ),
                     onPressed: () {
@@ -175,12 +175,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         child: Hero(
                           tag: '${widget.heroTagPrefix ?? ''}product_image_${detailedProduct.id}',
                           child: Container(
-                            color: Colors.white,
+                            color: context.colors.surface,
                             padding: const EdgeInsets.only(top: 80, bottom: 24),
                             child: detailedProduct.image.isNotEmpty
                                 ? CachedNetworkImage(
                                     imageUrl:
-                                        sanitizeImageUrl(detailedProduct.image),
+                                        sanitizeImageUrl(detailedProduct.image, category: detailedProduct.category),
                                     fit: BoxFit.contain,
                                     placeholder: (_, __) =>
                                         const ShimmerPlaceholder(
@@ -208,7 +208,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  Colors.black.withValues(alpha: 0.25),
+                                  context.colors.primary.withValues(alpha: 0.1),
                                   Colors.transparent,
                                   Colors.transparent,
                                 ],
@@ -255,13 +255,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 8, vertical: 4),
                               decoration: BoxDecoration(
-                                color: kLightGreen,
+                                color: context.colors.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(6),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'ORGANIC',
                                 style: TextStyle(
-                                  color: kGreen,
+                                  color: context.colors.primary,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 10,
                                 ),
@@ -278,10 +278,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           color: Colors.transparent,
                           child: Text(
                             detailedProduct.name,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 24,
                               fontWeight: FontWeight.w800,
-                              color: Colors.black87,
+                              color: context.colors.textPrimary,
                             ),
                           ),
                         ),
@@ -289,8 +289,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       const SizedBox(height: 4),
                       Text(
                         detailedProduct.unit,
-                        style: const TextStyle(
-                          color: Colors.grey,
+                        style: TextStyle(
+                          color: context.colors.textSecondary,
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
                         ),
@@ -305,7 +305,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: Colors.amber[50],
+                              color: context.colors.warning.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Row(
@@ -319,7 +319,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
-                                    color: Colors.amber[900],
+                                    color: context.colors.warning,
                                   ),
                                 ),
                               ],
@@ -328,11 +328,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           const SizedBox(width: 6),
                           Text(
                             '(${detailedProduct.reviews} reviews)',
-                            style: const TextStyle(
-                                color: Colors.grey, fontSize: 12),
+                            style: TextStyle(
+                                color: context.colors.textSecondary, fontSize: 12),
                           ),
                           const SizedBox(width: 12),
-                          const VerticalDivider(width: 1, thickness: 1),
+                          VerticalDivider(width: 1, thickness: 1, color: context.colors.divider),
                           const SizedBox(width: 12),
                           DeliveryEtaWidget(id: detailedProduct.id),
                         ],
@@ -350,10 +350,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               color: Colors.transparent,
                               child: Text(
                                 '₹${detailedProduct.price.toStringAsFixed(0)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 28,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.black87,
+                                  color: context.colors.textPrimary,
                                 ),
                               ),
                             ),
@@ -361,9 +361,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           const SizedBox(width: 8),
                           Text(
                             'MRP ₹${detailedProduct.mrp.toStringAsFixed(0)}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               decoration: TextDecoration.lineThrough,
-                              color: Colors.grey,
+                              color: context.colors.textSecondary,
                               fontSize: 16,
                             ),
                           ),
@@ -372,13 +372,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.blue[50],
+                              color: context.colors.offer.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
                               '${discount(detailedProduct)}% OFF',
                               style: TextStyle(
-                                color: Colors.blue[800],
+                                color: context.colors.offer,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),
@@ -404,8 +404,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         const SizedBox(height: 8),
                         Text(
                           detailedProduct.description,
-                          style: const TextStyle(
-                              fontSize: 14, height: 1.4, color: Colors.black54),
+                          style: TextStyle(
+                              fontSize: 14, height: 1.4, color: context.colors.textSecondary),
                         ),
                         const SizedBox(height: 24),
                       ],
@@ -419,9 +419,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       const SizedBox(height: 12),
                       Card(
                         elevation: 0,
-                        color: Colors.white,
+                        color: context.colors.card,
                         shape: RoundedRectangleBorder(
-                          side: BorderSide(color: Colors.grey[200]!),
+                          side: BorderSide(color: context.colors.border),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Padding(
@@ -429,16 +429,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               horizontal: 16, vertical: 8),
                           child: Column(
                             children: [
-                              _detailRow('Shelf Life', '90 Days'),
+                              _detailRow(context, 'Shelf Life', '90 Days'),
                               const Divider(height: 16),
-                              _detailRow('Weight / Unit', detailedProduct.unit),
+                              _detailRow(context, 'Weight / Unit', detailedProduct.unit),
                               const Divider(height: 16),
                               _detailRow(
-                                  'Country of Origin', detailedProduct.origin),
+                                  context, 'Country of Origin', detailedProduct.origin),
                               const Divider(height: 16),
-                              _detailRow('Brand', detailedProduct.store),
+                              _detailRow(context, 'Brand', detailedProduct.store),
                               const Divider(height: 16),
-                              _detailRow('Seller', detailedProduct.farmer),
+                              _detailRow(context, 'Seller', detailedProduct.farmer),
                             ],
                           ),
                         ),
@@ -547,7 +547,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             child: Container(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.colors.surface,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.05),
@@ -581,18 +581,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               children: [
                                 Text(
                                   '₹${detailedProduct.price.toStringAsFixed(0)}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
-                                      color: kGreen),
+                                      color: context.colors.primary),
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
                                   '₹${detailedProduct.mrp.toStringAsFixed(0)}',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
                                     decoration: TextDecoration.lineThrough,
-                                    color: Colors.grey,
+                                    color: context.colors.textSecondary,
                                   ),
                                 ),
                               ],
@@ -615,7 +615,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       else if (qty == 0) ...[
                         FilledButton(
                           style: FilledButton.styleFrom(
-                            backgroundColor: kGreen,
+                            backgroundColor: context.colors.primary,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 20, vertical: 14),
                           ),
@@ -651,15 +651,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         // Quantity Selector
                         Container(
                           decoration: BoxDecoration(
-                            border: Border.all(color: kGreen, width: 1.5),
+                            border: Border.all(color: context.colors.primary, width: 1.5),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: const Icon(Icons.remove,
-                                    color: kGreen, size: 20),
+                                icon: Icon(Icons.remove,
+                                    color: context.colors.primary, size: 20),
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 12),
                                 constraints: const BoxConstraints(),
@@ -668,14 +668,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               ),
                               Text(
                                 '$qty',
-                                style: const TextStyle(
+                                style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
-                                    color: kGreen),
+                                    color: context.colors.primary),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.add,
-                                    color: kGreen, size: 20),
+                                icon: Icon(Icons.add,
+                                    color: context.colors.primary, size: 20),
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 12),
                                 constraints: const BoxConstraints(),
@@ -687,7 +687,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         const SizedBox(width: 12),
                         FilledButton(
                           style: FilledButton.styleFrom(
-                            backgroundColor: kGreen,
+                            backgroundColor: context.colors.primary,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 24, vertical: 14),
                           ),
@@ -729,9 +729,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 24),
       elevation: 0,
-      color: Colors.white,
+      color: context.colors.card,
       shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.grey[200]!),
+        side: BorderSide(color: context.colors.border),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
@@ -748,11 +748,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _fbtItemImage(detailedProduct.image),
-                const Icon(Icons.add, color: Colors.grey),
+                Icon(Icons.add, color: context.colors.textSecondary),
                 ...sameCategoryProducts.expand((p) => [
                       _fbtItemImage(p.image),
                       if (p != sameCategoryProducts.last)
-                        const Icon(Icons.add, color: Colors.grey),
+                        Icon(Icons.add, color: context.colors.textSecondary),
                     ]),
               ],
             ),
@@ -762,20 +762,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Bundle price',
-                        style: TextStyle(color: Colors.black54)),
+                    Text('Bundle price',
+                        style: TextStyle(color: context.colors.textSecondary)),
                     Text(
                       '₹${totalFbtPrice.toStringAsFixed(0)}',
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
-                          color: kGreen),
+                          color: context.colors.primary),
                     ),
                   ],
                 ),
                 const Spacer(),
                 FilledButton(
-                  style: FilledButton.styleFrom(backgroundColor: kGreen),
+                  style: FilledButton.styleFrom(backgroundColor: context.colors.primary),
                   onPressed: () {
                     final cart = context.read<CartProvider>();
                     cart.add(detailedProduct);
@@ -801,7 +801,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       width: 60,
       height: 60,
       decoration: BoxDecoration(
-        color: kLightGreen,
+        color: context.colors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: ClipRRect(
@@ -870,11 +870,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 onPressed: () => _openReviewSheet(context, detailedProduct.id,
                     review: userReview),
                 icon: Icon(userReview != null ? Icons.edit : Icons.rate_review,
-                    color: kGreen),
+                    color: context.colors.primary),
                 label: Text(
                   userReview != null ? 'Edit Review' : 'Write Review',
-                  style: const TextStyle(
-                      color: kGreen, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: context.colors.primary, fontWeight: FontWeight.bold),
                 ),
               ),
           ],
@@ -883,9 +883,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
         Card(
           elevation: 0,
-          color: Colors.white,
+          color: context.colors.card,
           shape: RoundedRectangleBorder(
-            side: BorderSide(color: Colors.grey[200]!),
+            side: BorderSide(color: context.colors.border),
             borderRadius: BorderRadius.circular(16),
           ),
           child: Padding(
@@ -909,7 +909,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     const SizedBox(height: 4),
                     Text(
                       '$totalReviews Reviews',
-                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                      style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
                     ),
                   ],
                 ),
@@ -1268,9 +1268,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           .deleteReview(reviewId, productId);
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Review Deleted'),
-            backgroundColor: kGreen,
+          SnackBar(
+            content: const Text('Review Deleted'),
+            backgroundColor: context.colors.primary,
           ),
         );
       } else if (mounted) {
@@ -1279,7 +1279,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(error),
-            backgroundColor: Colors.red,
+            backgroundColor: context.colors.danger,
           ),
         );
       }
@@ -1297,6 +1297,7 @@ class CarouselProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return InkWell(
       onTap: () {
         Navigator.push(
@@ -1319,7 +1320,7 @@ class CarouselProductCard extends StatelessWidget {
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
-                        color: kLightGreen,
+                        color: colors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ClipRRect(
@@ -1348,13 +1349,13 @@ class CarouselProductCard extends StatelessWidget {
                           return CircleAvatar(
                             radius: 14,
                             backgroundColor:
-                                Colors.white.withValues(alpha: 0.9),
+                                colors.surface.withValues(alpha: 0.9),
                             child: IconButton(
                               padding: EdgeInsets.zero,
                               iconSize: 14,
                               icon: Icon(
                                 isFav ? Icons.favorite : Icons.favorite_border,
-                                color: isFav ? Colors.red : Colors.grey[700],
+                                color: isFav ? colors.danger : colors.textSecondary,
                               ),
                               onPressed: () =>
                                   provider.toggleWishlist(product.id),
@@ -1383,10 +1384,10 @@ class CarouselProductCard extends StatelessWidget {
                 children: [
                   Text(
                     '₹${product.price.toStringAsFixed(0)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 13,
-                        color: kGreen),
+                        color: colors.primary),
                   ),
                   const Spacer(),
                   SizedBox(
@@ -1413,7 +1414,7 @@ class CarouselProductCard extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: kGreen,
+                                  color: colors.primary,
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Center(
@@ -1441,7 +1442,7 @@ class CarouselProductCard extends StatelessWidget {
 
 // ─── Private helpers ──────────────────────────────────────────────────────────
 
-Widget _detailRow(String label, String value) {
+Widget _detailRow(BuildContext context, String label, String value) {
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 4),
     child: Row(
@@ -1451,16 +1452,16 @@ Widget _detailRow(String label, String value) {
           flex: 4,
           child: Text(
             label,
-            style: const TextStyle(color: Colors.black54, fontSize: 13),
+            style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
           ),
         ),
         Expanded(
           flex: 6,
           child: Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: context.colors.textPrimary,
                 fontSize: 13),
           ),
         ),
@@ -1539,6 +1540,7 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ReviewProvider>();
+    final colors = context.colors;
     final isEdit = widget.review != null;
 
     return Padding(
@@ -1565,7 +1567,7 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
                   return IconButton(
                     icon: Icon(
                       starValue <= _rating ? Icons.star : Icons.star_border,
-                      color: Colors.amber,
+                      color: colors.offer,
                       size: 36,
                     ),
                     onPressed: () {
@@ -1678,10 +1680,10 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
                         right: 2,
                         child: GestureDetector(
                           onTap: () => _removeImage(idx),
-                          child: const CircleAvatar(
+                          child: CircleAvatar(
                             radius: 10,
-                            backgroundColor: Colors.red,
-                            child: Icon(Icons.close,
+                            backgroundColor: colors.danger,
+                            child: const Icon(Icons.close,
                                 color: Colors.white, size: 10),
                           ),
                         ),
@@ -1695,7 +1697,7 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
 
             FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: kGreen,
+                backgroundColor: colors.primary,
                 padding: const EdgeInsets.symmetric(vertical: 14),
               ),
               onPressed: provider.submitting
@@ -1703,12 +1705,12 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
                   : () async {
                       final comment = _commentController.text.trim();
 
-                      // Submit review (backend receives the rating and comment; selected local images are stored/simulated)
+                      final imagePaths = _selectedImages.map((f) => f.path).toList();
                       final success = isEdit
                           ? await provider.updateReview(widget.review!.id,
-                              _rating, comment, widget.productId)
+                              _rating, comment, widget.productId, imagePaths: imagePaths)
                           : await provider.addReview(
-                              widget.productId, _rating, comment);
+                              widget.productId, _rating, comment, imagePaths: imagePaths);
 
                       if (success && context.mounted) {
                         Navigator.pop(context);
@@ -1716,7 +1718,7 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
                           SnackBar(
                             content: Text(
                                 isEdit ? 'Review Updated' : 'Review Added'),
-                            backgroundColor: kGreen,
+                            backgroundColor: colors.primary,
                           ),
                         );
                       } else if (context.mounted) {
@@ -1724,7 +1726,7 @@ class _ReviewFormSheetState extends State<_ReviewFormSheet> {
                           SnackBar(
                             content:
                                 Text(provider.error ?? 'Submission failed'),
-                            backgroundColor: Colors.red,
+                            backgroundColor: colors.danger,
                           ),
                         );
                       }

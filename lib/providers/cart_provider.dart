@@ -318,7 +318,11 @@ class CartProvider extends ChangeNotifier {
   }
 
   void clear() {
-    clearCart();
+    _items = [];
+    _error = null;
+    _savedProducts.clear();
+    _selectedCartItemIds.clear();
+    notifyListeners();
   }
 
   void clearError() {
@@ -358,4 +362,5 @@ class CartProvider extends ChangeNotifier {
     }
     return result;
   }
+
 }

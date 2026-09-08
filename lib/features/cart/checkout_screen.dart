@@ -82,7 +82,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               padding: const EdgeInsets.only(bottom: 10),
               child: Card(
                 child: ListTile(
-                  leading: const Icon(Icons.location_on, color: kGreen),
+                  leading: Icon(Icons.location_on, color: context.colors.primary),
                   title: Row(
                     children: [
                       Text(
@@ -94,14 +94,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 6, vertical: 1.5),
                         decoration: BoxDecoration(
-                          color: kGreen.withValues(alpha: 0.1),
+                          color: context.colors.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           addressProvider.selectedAddress!.addressType
                               .toUpperCase(),
-                          style: const TextStyle(
-                              color: kGreen,
+                          style: TextStyle(
+                              color: context.colors.primary,
                               fontWeight: FontWeight.bold,
                               fontSize: 8),
                         ),
@@ -129,7 +129,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               padding: const EdgeInsets.only(bottom: 10),
               child: Card(
                 child: ListTile(
-                  leading: const Icon(Icons.warning, color: Colors.orange),
+                  leading: Icon(Icons.warning, color: context.colors.offer),
                   title: const Text('No Address Selected'),
                   subtitle:
                       const Text('Add an address to proceed with checkout.'),
@@ -152,13 +152,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
             ),
           ),
-          const Padding(
-            padding: EdgeInsets.only(bottom: 10),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
             child: Card(
               child: ListTile(
-                leading: Icon(Icons.delivery_dining, color: kGreen),
-                title: Text('Home delivery'),
-                subtitle: Text('Expected in 15-30 minutes'),
+                leading: Icon(Icons.delivery_dining, color: context.colors.primary),
+                title: const Text('Home delivery'),
+                subtitle: const Text('Expected in 15-30 minutes'),
               ),
             ),
           ),
@@ -176,7 +176,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             child: Card(
               child: ListTile(
                 leading: Icon(_getIconForMethod(activeGateway.method),
-                    color: kGreen),
+                    color: context.colors.primary),
                 title: Text(
                   activeGateway.displayName,
                   style: const TextStyle(fontWeight: FontWeight.bold),
@@ -213,7 +213,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               padding: const EdgeInsets.only(bottom: 10),
               child: Card(
                 child: ListTile(
-                  leading: const Icon(Icons.confirmation_number, color: kGreen),
+                  leading: Icon(Icons.confirmation_number, color: context.colors.primary),
                   title: Text(
                     couponProvider.appliedCoupon == null
                         ? 'Apply Coupon'
@@ -226,8 +226,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         : 'Saved ₹${couponProvider.appliedCoupon!.discount.toStringAsFixed(2)} on this order',
                     style: TextStyle(
                       color: couponProvider.appliedCoupon == null
-                          ? Colors.grey[600]
-                          : kGreen,
+                          ? context.colors.textSecondary
+                          : context.colors.primary,
                       fontWeight: couponProvider.appliedCoupon == null
                           ? FontWeight.normal
                           : FontWeight.bold,
@@ -242,8 +242,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               const SnackBar(content: Text('Coupon removed')),
                             );
                           },
-                          child: const Text('Remove',
-                              style: TextStyle(color: Colors.red)),
+                          child: Text('Remove',
+                              style: TextStyle(color: context.colors.danger)),
                         ),
                   onTap: couponProvider.appliedCoupon == null
                       ? () {
@@ -278,15 +278,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
+                          Text(
                             'Coupon Discount',
                             style: TextStyle(
-                                color: kGreen, fontWeight: FontWeight.bold),
+                                color: context.colors.primary, fontWeight: FontWeight.bold),
                           ),
                           Text(
                             '-₹${discount.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                                color: kGreen, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                color: context.colors.primary, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -306,7 +306,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           // ── Place order CTA ───────────────────────────────────────────────
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: kGreen,
+              backgroundColor: context.colors.primary,
               padding: const EdgeInsets.all(16),
             ),
             onPressed: (orderProvider.placingOrder ||
@@ -380,7 +380,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         SnackBar(
                           content: Text(paymentResult.errorMessage ??
                               'Payment failed. Please try again.'),
-                          backgroundColor: Colors.red,
+                          backgroundColor: context.colors.danger,
                         ),
                       );
                       return;

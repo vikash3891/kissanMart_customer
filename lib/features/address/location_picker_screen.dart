@@ -118,7 +118,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
         SnackBar(
           content: Text(locationProvider.error ??
               'Failed to resolve location coordinates'),
-          backgroundColor: Colors.red,
+          backgroundColor: context.colors.danger,
         ),
       );
     }
@@ -127,6 +127,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
   @override
   Widget build(BuildContext context) {
     final locationProvider = context.watch<LocationProvider>();
+    final colors = context.colors;
 
     final address = locationProvider.selectedAddress;
 
@@ -157,9 +158,9 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               child: AnimatedScale(
                 scale: _isMapDragging ? 1.2 : 1.0,
                 duration: const Duration(milliseconds: 150),
-                child: const Icon(
+                child: Icon(
                   Icons.location_on,
-                  color: Colors.red,
+                  color: colors.danger,
                   size: 48,
                 ),
               ),
@@ -186,7 +187,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                           onChanged: _handleSearch,
                           decoration: InputDecoration(
                             hintText: 'Search for area, street, pincode...',
-                            prefixIcon: const Icon(Icons.search, color: kGreen),
+                            prefixIcon: Icon(Icons.search, color: colors.primary),
                             suffixIcon: _searchController.text.isNotEmpty
                                 ? IconButton(
                                     icon: const Icon(Icons.clear),
@@ -236,12 +237,12 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                         onTap: _initLocation,
                         child: Chip(
                           backgroundColor: Colors.white,
-                          avatar: const Icon(Icons.my_location,
-                              color: kGreen, size: 18),
-                          label: const Text(
+                          avatar: Icon(Icons.my_location,
+                              color: colors.primary, size: 18),
+                          label: Text(
                             'Use Current Location',
                             style: TextStyle(
-                                fontWeight: FontWeight.bold, color: kGreen),
+                                fontWeight: FontWeight.bold, color: colors.primary),
                           ),
                           elevation: 2,
                         ),
@@ -271,7 +272,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.location_on, color: kGreen, size: 28),
+                        Icon(Icons.location_on, color: colors.primary, size: 28),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -354,7 +355,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
                     // Confirm Action Button
                     FilledButton(
                       style: FilledButton.styleFrom(
-                        backgroundColor: kGreen,
+                        backgroundColor: colors.primary,
                         padding: const EdgeInsets.all(16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
@@ -416,7 +417,7 @@ class _LocationPickerScreenState extends State<LocationPickerScreen> {
               mini: true,
               backgroundColor: Colors.white,
               onPressed: _initLocation,
-              child: const Icon(Icons.gps_fixed, color: kGreen),
+              child: Icon(Icons.gps_fixed, color: colors.primary),
             ),
           ),
         ],

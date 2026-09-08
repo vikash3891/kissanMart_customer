@@ -66,6 +66,20 @@ class ApiService {
     return false;
   }
 
+  bool _isTokenError(http.Response response) {
+    if (response.statusCode == 401) return true;
+    if (response.statusCode == 500) {
+      try {
+        final data = jsonDecode(response.body);
+        final msg = data['message']?.toString().toLowerCase() ?? '';
+        if (msg.contains('jwt') || msg.contains('token') || msg.contains('unauthorized')) {
+          return true;
+        }
+      } catch (_) {}
+    }
+    return false;
+  }
+
   // ─── GET ──────────────────────────────────────────────────────────────────
 
   Future<dynamic> get(String endpoint) async {
@@ -73,7 +87,7 @@ class ApiService {
       Uri.parse(ApiConstants.baseUrl + endpoint),
       headers: await _headers(),
     );
-    if (response.statusCode == 401) {
+    if (_isTokenError(response)) {
       final success = await _refreshSession();
       if (success) {
         response = await http.get(
@@ -96,7 +110,7 @@ class ApiService {
       headers: await _headers(),
       body: jsonEncode(body),
     );
-    if (response.statusCode == 401) {
+    if (_isTokenError(response)) {
       final success = await _refreshSession();
       if (success) {
         response = await http.post(
@@ -120,7 +134,7 @@ class ApiService {
       headers: await _headers(),
       body: jsonEncode(body),
     );
-    if (response.statusCode == 401) {
+    if (_isTokenError(response)) {
       final success = await _refreshSession();
       if (success) {
         response = await http.patch(
@@ -144,7 +158,7 @@ class ApiService {
       headers: await _headers(),
       body: jsonEncode(body),
     );
-    if (response.statusCode == 401) {
+    if (_isTokenError(response)) {
       final success = await _refreshSession();
       if (success) {
         response = await http.put(
@@ -164,13 +178,119 @@ class ApiService {
       Uri.parse(ApiConstants.baseUrl + endpoint),
       headers: await _headers(),
     );
-    if (response.statusCode == 401) {
+    if (_isTokenError(response)) {
       final success = await _refreshSession();
       if (success) {
         response = await http.delete(
           Uri.parse(ApiConstants.baseUrl + endpoint),
           headers: await _headers(),
         );
+      }
+    }
+    return _processResponse(response);
+  }
+
+  // ─── MULTIPART POST ───────────────────────────────────────────────────────
+
+  Future<dynamic> postMultipart(
+    String endpoint,
+    Map<String, String> fields, {
+    List<String>? imagePaths,
+    String fileFieldName = 'images',
+  }) async {
+    final token = await _tokenService.getToken();
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse(ApiConstants.baseUrl + endpoint),
+    );
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    request.headers['Accept'] = 'application/json';
+    request.fields.addAll(fields);
+
+    if (imagePaths != null && imagePaths.isNotEmpty) {
+      for (final path in imagePaths) {
+        request.files.add(await http.MultipartFile.fromPath(fileFieldName, path));
+      }
+    }
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    if (_isTokenError(response)) {
+      final success = await _refreshSession();
+      if (success) {
+        final newToken = await _tokenService.getToken();
+        var retryReq = http.MultipartRequest(
+          'POST',
+          Uri.parse(ApiConstants.baseUrl + endpoint),
+        );
+        if (newToken != null) {
+          retryReq.headers['Authorization'] = 'Bearer $newToken';
+        }
+        retryReq.headers['Accept'] = 'application/json';
+        retryReq.fields.addAll(fields);
+        if (imagePaths != null && imagePaths.isNotEmpty) {
+          for (final path in imagePaths) {
+            retryReq.files.add(await http.MultipartFile.fromPath(fileFieldName, path));
+          }
+        }
+        var retryStreamed = await retryReq.send();
+        response = await http.Response.fromStream(retryStreamed);
+      }
+    }
+    return _processResponse(response);
+  }
+
+  // ─── MULTIPART PUT ────────────────────────────────────────────────────────
+
+  Future<dynamic> putMultipart(
+    String endpoint,
+    Map<String, String> fields, {
+    List<String>? imagePaths,
+    String fileFieldName = 'images',
+  }) async {
+    final token = await _tokenService.getToken();
+    var request = http.MultipartRequest(
+      'PUT',
+      Uri.parse(ApiConstants.baseUrl + endpoint),
+    );
+    if (token != null) {
+      request.headers['Authorization'] = 'Bearer $token';
+    }
+    request.headers['Accept'] = 'application/json';
+    request.fields.addAll(fields);
+
+    if (imagePaths != null && imagePaths.isNotEmpty) {
+      for (final path in imagePaths) {
+        request.files.add(await http.MultipartFile.fromPath(fileFieldName, path));
+      }
+    }
+
+    var streamedResponse = await request.send();
+    var response = await http.Response.fromStream(streamedResponse);
+
+    if (_isTokenError(response)) {
+      final success = await _refreshSession();
+      if (success) {
+        final newToken = await _tokenService.getToken();
+        var retryReq = http.MultipartRequest(
+          'PUT',
+          Uri.parse(ApiConstants.baseUrl + endpoint),
+        );
+        if (newToken != null) {
+          retryReq.headers['Authorization'] = 'Bearer $newToken';
+        }
+        retryReq.headers['Accept'] = 'application/json';
+        retryReq.fields.addAll(fields);
+        if (imagePaths != null && imagePaths.isNotEmpty) {
+          for (final path in imagePaths) {
+            retryReq.files.add(await http.MultipartFile.fromPath(fileFieldName, path));
+          }
+        }
+        var retryStreamed = await retryReq.send();
+        response = await http.Response.fromStream(retryStreamed);
       }
     }
     return _processResponse(response);
@@ -230,8 +350,15 @@ class ApiService {
         );
 
       case 500:
+        final msg = data['message']?.toString().toLowerCase() ?? '';
+        if (msg.contains('jwt') || msg.contains('token') || msg.contains('unauthorized')) {
+          throw ApiException(
+            message: 'Session Expired. Please log in again.',
+            statusCode: 401,
+          );
+        }
         throw ApiException(
-          message: 'Internal Server Error',
+          message: data['message'] ?? 'Internal Server Error',
           statusCode: 500,
         );
 

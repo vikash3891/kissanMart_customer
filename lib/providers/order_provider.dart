@@ -41,7 +41,7 @@ class OrderProvider extends ChangeNotifier {
             type: '',
             image: p.imageUrl,
             unit: p.unit,
-            price: p.discountPrice,
+            price: p.discountPrice > 0 ? p.discountPrice : p.price,
             mrp: p.price,
             rating: 4.5,
             reviews: 0,
@@ -168,5 +168,9 @@ class OrderProvider extends ChangeNotifier {
       _loading = false;
       notifyListeners();
     }
+  }
+
+  void clear() {
+    _orders = []; _selectedOrder = null; _error = null; notifyListeners();
   }
 }

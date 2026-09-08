@@ -88,8 +88,9 @@ class ProfilePage extends StatelessWidget {
       ),
     ];
 
+    final colors = context.colors;
     return Scaffold(
-      backgroundColor: kBg,
+      backgroundColor: colors.surface,
       body: SafeArea(
         child: Center(
           child: ConstrainedBox(
@@ -123,11 +124,11 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
-    final profileProv = context.watch<ProfileProvider>();
-    final profile = profileProv.profile;
+    final colors = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final profile = context.watch<ProfileProvider>().profile;
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
@@ -140,18 +141,19 @@ class _Header extends StatelessWidget {
                   context.read<NavigationProvider>().setTab(0);
                 }
               },
-              child: const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.arrow_back_ios_new, color: kDark, size: 20),
+              child: CircleAvatar(
+                backgroundColor: colors.card,
+                child: Icon(Icons.arrow_back_ios_new, color: colors.textPrimary, size: 20),
               ),
             ),
             Expanded(
               child: Center(
                 child: Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w800,
+                    color: colors.textPrimary,
                   ),
                 ),
               ),
@@ -162,32 +164,52 @@ class _Header extends StatelessWidget {
         if (title == 'Profile' && auth.loggedIn) ...[
           const SizedBox(height: 20),
           Container(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(color: const Color(0xFFF3F4F8)),
+              color: colors.card,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: colors.border),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 28,
-                  backgroundColor: kLightGreen,
-                  backgroundImage: (profile?.profileImagePath != null &&
-                          File(profile!.profileImagePath!).existsSync())
-                      ? FileImage(File(profile.profileImagePath!))
-                      : null,
-                  child: (profile?.profileImagePath == null ||
-                          !File(profile!.profileImagePath!).existsSync())
-                      ? Text(
-                          (profile != null && profile.name.isNotEmpty)
-                              ? profile.name[0].toUpperCase()
-                              : '👤',
-                          style: const TextStyle(fontSize: 28),
-                        )
-                      : null,
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: colors.primary.withValues(alpha: 0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 32,
+                    backgroundColor: colors.primary.withValues(alpha: 0.15),
+                    backgroundImage: (profile?.profileImagePath != null &&
+                            File(profile!.profileImagePath!).existsSync())
+                        ? FileImage(File(profile.profileImagePath!))
+                        : null,
+                    child: (profile?.profileImagePath == null ||
+                            !File(profile!.profileImagePath!).existsSync())
+                        ? Text(
+                            (profile != null && profile.name.isNotEmpty)
+                                ? profile.name[0].toUpperCase()
+                                : '👤',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.bold,
+                              color: colors.primary,
+                            ),
+                          )
+                        : null,
+                  ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,30 +219,50 @@ class _Header extends StatelessWidget {
                             ? profile.name
                             : (profile?.phone ??
                                 auth.currentUser?['phone'] ??
-                                ''),
-                        style: const TextStyle(
+                                'Customer'),
+                        style: TextStyle(
                           fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: kDark,
+                          fontWeight: FontWeight.w800,
+                          color: colors.textPrimary,
+                          letterSpacing: -0.3,
                         ),
                       ),
                       if (profile != null && profile.email.isNotEmpty) ...[
-                        const SizedBox(height: 2),
+                        const SizedBox(height: 4),
                         Text(
                           profile.email,
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: Colors.black54,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: colors.textSecondary,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
-                      const SizedBox(height: 4),
-                      Text(
-                        'Role: ${(profile?.role ?? auth.currentUser?['role'] ?? 'CUSTOMER').toString().toUpperCase()}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                          fontWeight: FontWeight.bold,
+                      const SizedBox(height: 10),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: colors.primary.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Text(
+                          (profile?.role ??
+                                  auth.currentUser?['role'] ??
+                                  'CUSTOMER')
+                              .toString()
+                              .toUpperCase(),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: colors.primary,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
+                          ),
                         ),
                       ),
                     ],
@@ -242,14 +284,16 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         text,
-        style: const TextStyle(
-          fontSize: 15,
-          color: Colors.black54,
-          letterSpacing: .8,
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w700,
+          color: colors.textSecondary,
+          letterSpacing: 1.2,
         ),
       ),
     );
@@ -272,6 +316,7 @@ class _ProfileRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return ListTile(
       onTap: item.onTap,
       contentPadding: EdgeInsets.zero,
@@ -280,8 +325,8 @@ class _ProfileRow extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 24,
-            backgroundColor: const Color(0xFFF0F1F5),
-            child: Icon(item.icon, color: kDark),
+            backgroundColor: colors.skeleton,
+            child: Icon(item.icon, color: colors.textPrimary),
           ),
           if (item.badgeCount > 0)
             Positioned(
@@ -289,8 +334,8 @@ class _ProfileRow extends StatelessWidget {
               right: -4,
               child: Container(
                 padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: Colors.red,
+                decoration: BoxDecoration(
+                  color: colors.danger,
                   shape: BoxShape.circle,
                 ),
                 constraints: const BoxConstraints(

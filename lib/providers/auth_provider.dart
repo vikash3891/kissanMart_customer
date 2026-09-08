@@ -36,10 +36,6 @@ class AuthProvider extends ChangeNotifier {
 
   AuthProvider() {
     _restoreSession();
-    // Configure session expired callback to log out globally
-    ApiService.onSessionExpired = () {
-      logout();
-    };
   }
 
   /// Reads the persisted token and sets [_loggedIn] accordingly.

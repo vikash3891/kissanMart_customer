@@ -5,6 +5,7 @@ import 'core/config/environment_config.dart';
 import 'core/config/remote_config_service.dart';
 import 'core/storage/hive_storage_service.dart';
 import 'core/theme/app_theme.dart';
+import 'services/api_service.dart';
 
 import 'providers/auth_provider.dart';
 import 'providers/navigation_provider.dart';
@@ -96,9 +97,37 @@ class KisaanKartApp extends StatefulWidget {
 }
 
 class _KisaanKartAppState extends State<KisaanKartApp> {
+  final GlobalKey<ScaffoldMessengerState> _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  
   /// Controls whether the splash screen is still visible.
   /// Set to false once the splash animation completes.
   bool _showSplash = true;
+
+  @override
+  void initState() {
+    super.initState();
+    ApiService.onSessionExpired = () {
+      if (mounted) {
+        context.read<AuthProvider>().logout();
+        
+        // Clear all provider states
+        context.read<CartProvider>().clear();
+        context.read<AddressProvider>().clear();
+        context.read<OrderProvider>().clear();
+        context.read<ProfileProvider>().clear();
+        context.read<WishlistProvider>().clear();
+        context.read<NotificationProvider>().clear();
+
+        _scaffoldMessengerKey.currentState?.showSnackBar(
+          const SnackBar(
+            content: Text('Your session has expired. Please login again.'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 4),
+          ),
+        );
+      }
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +150,7 @@ class _KisaanKartAppState extends State<KisaanKartApp> {
     // for a minimum of ~2.4 s regardless of how fast auth resolves.
     if (_showSplash || auth.isInitializing) {
       return MaterialApp(
+        scaffoldMessengerKey: _scaffoldMessengerKey,
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
         darkTheme: darkTheme,
@@ -148,6 +178,7 @@ class _KisaanKartAppState extends State<KisaanKartApp> {
     }
 
     return MaterialApp(
+      scaffoldMessengerKey: _scaffoldMessengerKey,
       debugShowCheckedModeBanner: false,
       title: 'Kisaan Kart',
       theme: lightTheme,

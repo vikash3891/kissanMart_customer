@@ -46,6 +46,7 @@ class AddressScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AddressProvider>();
+    final colors = context.colors;
 
     return Scaffold(
       appBar: AppBar(
@@ -98,16 +99,16 @@ class AddressScreen extends StatelessWidget {
               child: Card(
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  side: const BorderSide(color: kGreen),
+                  side: BorderSide(color: colors.primary),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: ListTile(
-                  leading: const Icon(Icons.add_location_alt_outlined,
-                      color: kGreen),
-                  title: const Text(
+                  leading: Icon(Icons.add_location_alt_outlined,
+                      color: colors.primary),
+                  title: Text(
                     'Add a new address',
                     style:
-                        TextStyle(color: kGreen, fontWeight: FontWeight.bold),
+                        TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
                   ),
                   onTap: () {
                     showModalBottomSheet(
@@ -132,7 +133,7 @@ class AddressScreen extends StatelessWidget {
                             const SizedBox(height: 20),
                             ListTile(
                               leading:
-                                  const Icon(Icons.my_location, color: kGreen),
+                                  Icon(Icons.my_location, color: colors.primary),
                               title: const Text('Use Google Maps',
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
@@ -179,7 +180,7 @@ class AddressScreen extends StatelessWidget {
             Expanded(
               child: provider.loading && provider.addresses.isEmpty
                   ? const Center(child: CircularProgressIndicator())
-                  : provider.addresses.isEmpty
+                  : provider.addresses.isEmpty && provider.error == null
                       ? ListView(
                           children: [
                             SizedBox(
@@ -217,7 +218,7 @@ class AddressScreen extends StatelessWidget {
                             Color badgeColor;
                             switch (a.addressType.toLowerCase()) {
                               case 'home':
-                                badgeColor = kGreen;
+                                badgeColor = colors.primary;
                                 break;
                               case 'work':
                                 badgeColor = Colors.blue;
@@ -228,178 +229,225 @@ class AddressScreen extends StatelessWidget {
 
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
+                              elevation: isSelected ? 2 : 0.5,
+                              shadowColor: Colors.black.withValues(alpha: 0.08),
                               shape: RoundedRectangleBorder(
                                 side: BorderSide(
-                                  color:
-                                      isSelected ? kGreen : Colors.transparent,
-                                  width: 1.5,
+                                  color: isSelected
+                                      ? colors.primary
+                                      : colors.border.withValues(alpha: 0.5),
+                                  width: isSelected ? 1.5 : 0.8,
                                 ),
                                 borderRadius: BorderRadius.circular(16),
                               ),
-                              child: ListTile(
-                                // ignore: deprecated_member_use
-                                leading: Radio<int>(
-                                  value: a.id,
-                                  // ignore: deprecated_member_use
-                                  groupValue: provider.selectedAddress?.id,
-                                  activeColor: kGreen,
-                                  // ignore: deprecated_member_use
-                                  onChanged: (id) {
-                                    if (id != null) {
-                                      provider.selectAddress(a);
-                                    }
-                                  },
-                                ),
-                                title: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        a.fullName,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold),
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(16),
+                                onTap: () => provider.selectAddress(a),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      // Radio selector
+                                      Radio<int>(
+                                        value: a.id,
+                                        groupValue: provider.selectedAddress?.id,
+                                        activeColor: colors.primary,
+                                        visualDensity: VisualDensity.compact,
+                                        onChanged: (id) {
+                                          if (id != null) provider.selectAddress(a);
+                                        },
                                       ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color:
-                                            badgeColor.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        a.addressType.toUpperCase(),
-                                        style: TextStyle(
-                                          color: badgeColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 10,
+                                      const SizedBox(width: 8),
+                                      // Content column
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            // Full name — full width
+                                            Text(
+                                              a.fullName,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 6),
+                                            // Badges below the name
+                                            Wrap(
+                                              spacing: 6,
+                                              runSpacing: 4,
+                                              children: [
+                                                _AddressBadge(
+                                                  label: a.addressType.isEmpty
+                                                      ? 'HOME'
+                                                      : a.addressType.toUpperCase(),
+                                                  icon: a.addressType.toLowerCase() == 'work'
+                                                      ? Icons.work_outline
+                                                      : a.addressType.toLowerCase() == 'other'
+                                                          ? Icons.place_outlined
+                                                          : Icons.home_outlined,
+                                                  color: badgeColor,
+                                                ),
+                                                if (a.isDefault)
+                                                  _AddressBadge(
+                                                    label: 'DEFAULT',
+                                                    icon: Icons.check_circle_outline,
+                                                    color: colors.primary,
+                                                  ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 10),
+                                            // Address lines
+                                            Row(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Icon(Icons.location_on_outlined,
+                                                    size: 14,
+                                                    color: colors.textSecondary),
+                                                const SizedBox(width: 4),
+                                                Expanded(
+                                                  child: Text(
+                                                    '${a.houseNo}, ${a.area}',
+                                                    style: TextStyle(
+                                                      fontSize: 13,
+                                                      color: colors.textPrimary,
+                                                      height: 1.4,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 18),
+                                              child: Text(
+                                                '${a.city} • ${a.state} - ${a.pincode}',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: colors.textSecondary,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              children: [
+                                                Icon(Icons.phone_outlined,
+                                                    size: 13,
+                                                    color: colors.textSecondary),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  a.phone,
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: colors.textSecondary,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ),
-                                    if (a.isDefault) ...[
-                                      const SizedBox(width: 6),
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 8, vertical: 2),
-                                        decoration: BoxDecoration(
-                                          color: kLightGreen,
-                                          borderRadius:
-                                              BorderRadius.circular(6),
-                                        ),
-                                        child: const Text(
-                                          'DEFAULT',
-                                          style: TextStyle(
-                                            color: kGreen,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 10,
-                                          ),
-                                        ),
+                                      // Menu
+                                      PopupMenuButton<String>(
+                                        icon: Icon(Icons.more_vert,
+                                            color: colors.textSecondary),
+                                        itemBuilder: (_) => [
+                                          const PopupMenuItem(
+                                              value: 'edit',
+                                              child: Text('Edit location')),
+                                          if (!a.isDefault)
+                                            const PopupMenuItem(
+                                                value: 'default',
+                                                child: Text('Make Default')),
+                                          const PopupMenuItem(
+                                              value: 'delete',
+                                              child: Text('Delete')),
+                                        ],
+                                        onSelected: (v) {
+                                          if (v == 'edit') {
+                                            showModalBottomSheet(
+                                              context: context,
+                                              shape: const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.vertical(
+                                                    top: Radius.circular(20)),
+                                              ),
+                                              builder: (context) => Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                    horizontal: 20, vertical: 24),
+                                                child: Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.stretch,
+                                                  children: [
+                                                    const Text(
+                                                      'Choose Edit Method',
+                                                      style: TextStyle(
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.bold),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                    const SizedBox(height: 20),
+                                                    ListTile(
+                                                      leading: Icon(
+                                                          Icons.my_location,
+                                                          color: colors.primary),
+                                                      title: const Text(
+                                                          'Use Google Maps',
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight.bold)),
+                                                      subtitle: const Text(
+                                                          'Move map pin to update coordinates'),
+                                                      onTap: () {
+                                                        Navigator.pop(context);
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (_) =>
+                                                                LocationPickerScreen(
+                                                                    editItem: a),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                    const Divider(),
+                                                    ListTile(
+                                                      leading: const Icon(
+                                                          Icons.edit_note,
+                                                          color: Colors.orange),
+                                                      title: const Text(
+                                                          'Edit Details Manually',
+                                                          style: TextStyle(
+                                                              fontWeight:
+                                                                  FontWeight.bold)),
+                                                      subtitle: const Text(
+                                                          'Directly edit name, phone, house details'),
+                                                      onTap: () {
+                                                        Navigator.pop(context);
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                            builder: (_) =>
+                                                                AddressForm(item: a),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          } else if (v == 'default') {
+                                            provider.setDefaultAddress(a.id);
+                                          } else if (v == 'delete') {
+                                            _showDeleteConfirm(context, a);
+                                          }
+                                        },
                                       ),
                                     ],
-                                  ],
-                                ),
-                                subtitle: Padding(
-                                  padding: const EdgeInsets.only(top: 6),
-                                  child: Text(
-                                    '${a.houseNo}, ${a.area}\n${a.city}, ${a.state} - ${a.pincode}\nPhone: ${a.phone}',
-                                    style: const TextStyle(height: 1.3),
                                   ),
-                                ),
-                                isThreeLine: true,
-                                trailing: PopupMenuButton<String>(
-                                  icon: const Icon(Icons.more_vert),
-                                  itemBuilder: (_) => [
-                                    const PopupMenuItem(
-                                        value: 'edit',
-                                        child: Text('Edit location')),
-                                    if (!a.isDefault)
-                                      const PopupMenuItem(
-                                          value: 'default',
-                                          child: Text('Make Default')),
-                                    const PopupMenuItem(
-                                        value: 'delete', child: Text('Delete')),
-                                  ],
-                                  onSelected: (v) {
-                                    if (v == 'edit') {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                              top: Radius.circular(20)),
-                                        ),
-                                        builder: (context) => Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 20, vertical: 24),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.stretch,
-                                            children: [
-                                              const Text(
-                                                'Choose Edit Method',
-                                                style: TextStyle(
-                                                    fontSize: 18,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              const SizedBox(height: 20),
-                                              ListTile(
-                                                leading: const Icon(
-                                                    Icons.my_location,
-                                                    color: kGreen),
-                                                title: const Text(
-                                                    'Use Google Maps',
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                                subtitle: const Text(
-                                                    'Move map pin to update coordinates'),
-                                                onTap: () {
-                                                  Navigator.pop(context);
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (_) =>
-                                                          LocationPickerScreen(
-                                                              editItem: a),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                              const Divider(),
-                                              ListTile(
-                                                leading: const Icon(
-                                                    Icons.edit_note,
-                                                    color: Colors.orange),
-                                                title: const Text(
-                                                    'Edit Details Manually',
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                                subtitle: const Text(
-                                                    'Directly edit name, phone, house details'),
-                                                onTap: () {
-                                                  Navigator.pop(context);
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (_) =>
-                                                          AddressForm(item: a),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    } else if (v == 'default') {
-                                      provider.setDefaultAddress(a.id);
-                                    } else if (v == 'delete') {
-                                      _showDeleteConfirm(context, a);
-                                    }
-                                  },
                                 ),
                               ),
                             );
@@ -408,6 +456,49 @@ class AddressScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Address Badge helper ─────────────────────────────────────────────────────
+
+/// A pill badge chip for address type (HOME, WORK, OTHER) and DEFAULT.
+class _AddressBadge extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  const _AddressBadge({
+    required this.label,
+    required this.icon,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.10),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withValues(alpha: 0.25), width: 0.8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 11, color: color),
+          const SizedBox(width: 3),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: 10,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -521,6 +612,7 @@ class _AddressFormState extends State<AddressForm> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<AddressProvider>();
+    final colors = context.colors;
 
     return Scaffold(
       appBar: AppBar(
@@ -661,7 +753,7 @@ class _AddressFormState extends State<AddressForm> {
               const SizedBox(height: 24),
               FilledButton(
                 style: FilledButton.styleFrom(
-                  backgroundColor: kGreen,
+                  backgroundColor: colors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 onPressed: provider.loading ? null : _save,

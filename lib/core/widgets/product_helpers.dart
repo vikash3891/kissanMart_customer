@@ -57,28 +57,29 @@ class _FlashSaleTimerState extends State<FlashSaleTimer> {
   @override
   Widget build(BuildContext context) {
     if (_remaining.inSeconds <= 0) return const SizedBox.shrink();
+    final colors = context.colors;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.red[50],
+        color: colors.danger.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red[200]!),
+        border: Border.all(color: colors.danger.withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.flash_on, color: Colors.red, size: 16),
+          Icon(Icons.flash_on, color: colors.danger, size: 16),
           const SizedBox(width: 4),
-          const Text(
+          Text(
             'Flash Sale  ',
             style: TextStyle(
-                color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12),
+                color: colors.danger, fontWeight: FontWeight.bold, fontSize: 12),
           ),
           Text(
             _formatDuration(_remaining),
-            style: const TextStyle(
-              color: Colors.red,
+            style: TextStyle(
+              color: colors.danger,
               fontWeight: FontWeight.w900,
               fontFamily: 'Courier',
               fontSize: 12,
@@ -106,17 +107,18 @@ class StockIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     if (!isAvailable || stock <= 0) {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.red[50],
+          color: colors.danger.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Text(
+        child: Text(
           'Out of Stock',
           style: TextStyle(
-              color: Colors.red, fontWeight: FontWeight.bold, fontSize: 11),
+              color: colors.danger, fontWeight: FontWeight.bold, fontSize: 11),
         ),
       );
     }
@@ -125,13 +127,13 @@ class StockIndicator extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.red[50],
+          color: colors.danger.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Text(
+        child: Text(
           'Only 1 left!',
           style: TextStyle(
-              color: Colors.red, fontWeight: FontWeight.bold, fontSize: 11),
+              color: colors.danger, fontWeight: FontWeight.bold, fontSize: 11),
         ),
       );
     }
@@ -140,13 +142,13 @@ class StockIndicator extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.orange[50],
+          color: colors.warning.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           'Only $stock left',
-          style: const TextStyle(
-              color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 11),
+          style: TextStyle(
+              color: colors.warning, fontWeight: FontWeight.bold, fontSize: 11),
         ),
       );
     }
@@ -155,13 +157,13 @@ class StockIndicator extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.orange[50],
+          color: colors.warning.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: const Text(
+        child: Text(
           'Low Stock',
           style: TextStyle(
-              color: Colors.orange, fontWeight: FontWeight.bold, fontSize: 11),
+              color: colors.warning, fontWeight: FontWeight.bold, fontSize: 11),
         ),
       );
     }
@@ -169,13 +171,13 @@ class StockIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.green[50],
+        color: colors.success.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Text(
+      child: Text(
         'In Stock',
-        style:
-            TextStyle(color: kGreen, fontWeight: FontWeight.bold, fontSize: 11),
+        style: TextStyle(
+            color: colors.success, fontWeight: FontWeight.bold, fontSize: 11),
       ),
     );
   }
@@ -191,6 +193,7 @@ class DeliveryEtaWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     // Deterministic ETA mapping for presentation
     final eta = id % 3 == 0
         ? '10 min'
@@ -201,17 +204,17 @@ class DeliveryEtaWidget extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.flash_on, size: 14, color: Colors.orange),
+        Icon(Icons.flash_on, size: 14, color: colors.warning),
         const SizedBox(width: 2),
         Flexible(
           child: Text(
             'Deliver in $eta',
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.bold,
-              color: Colors.black87,
+              color: colors.textPrimary,
             ),
           ),
         ),
@@ -230,6 +233,7 @@ class ProductBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     // Configurable list of badges based on product ID
     final badges = [
       'Organic',
@@ -243,29 +247,29 @@ class ProductBadge extends StatelessWidget {
     ];
     final label = badges[id % badges.length];
 
-    Color color = kGreen;
+    Color color = colors.primary;
     if (label == 'Best Seller' || label == 'Top Rated') {
-      color = Colors.amber[800]!;
+      color = colors.coupon;
     } else if (label == 'Limited Stock' || label == 'New Arrival') {
-      color = Colors.orange[800]!;
+      color = colors.warning;
     } else if (label == 'Fast Delivery') {
-      color = Colors.blue[800]!;
+      color = colors.delivery;
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
       decoration: BoxDecoration(
         color: color,
         borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(18),
-          bottomRight: Radius.circular(12),
+          topLeft: Radius.circular(12),
+          bottomRight: Radius.circular(8),
         ),
       ),
       child: Text(
         label.toUpperCase(),
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 9,
+          fontSize: 7,
           fontWeight: FontWeight.w900,
           letterSpacing: 0.5,
         ),

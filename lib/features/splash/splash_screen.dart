@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../core/design_system/app_colors.dart';
 
 /// Kisaan Kart animated splash screen.
 ///
@@ -81,18 +82,19 @@ class _SplashScreenState extends State<SplashScreen>
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: colors.background,
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFFF2FFF2), // Soft green top
-              Color(0xFFFFFFFF), // White bottom
+              colors.primary.withValues(alpha: 0.12),
+              colors.background,
             ],
-            stops: [0.0, 1.0],
+            stops: const [0.0, 1.0],
           ),
         ),
         child: SafeArea(
@@ -116,7 +118,7 @@ class _SplashScreenState extends State<SplashScreen>
                               borderRadius: BorderRadius.circular(30),
                               boxShadow: [
                                 BoxShadow(
-                                  color: const Color(0xFF168A3A)
+                                  color: colors.primary
                                       .withValues(alpha: 0.18),
                                   blurRadius: 32,
                                   offset: const Offset(0, 12),
@@ -132,7 +134,7 @@ class _SplashScreenState extends State<SplashScreen>
                                   // Fallback: green cart icon if image fails
                                   return Container(
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFF168A3A),
+                                      color: colors.primary,
                                       borderRadius: BorderRadius.circular(30),
                                     ),
                                     child: const Icon(
@@ -158,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen>
                           style: GoogleFonts.outfit(
                             fontSize: 36,
                             fontWeight: FontWeight.w900,
-                            color: const Color(0xFF168A3A),
+                            color: colors.primary,
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -174,7 +176,7 @@ class _SplashScreenState extends State<SplashScreen>
                           style: GoogleFonts.outfit(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
-                            color: const Color(0xFF168A3A).withValues(alpha: 0.7),
+                            color: colors.textSecondary,
                             letterSpacing: 0.2,
                           ),
                         ),
@@ -197,7 +199,7 @@ class _SplashScreenState extends State<SplashScreen>
                         child: CircularProgressIndicator(
                           strokeWidth: 2.5,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            const Color(0xFF168A3A).withValues(alpha: 0.5),
+                            colors.primary.withValues(alpha: 0.6),
                           ),
                         ),
                       ),
@@ -206,7 +208,7 @@ class _SplashScreenState extends State<SplashScreen>
                         'Loading fresh picks for you...',
                         style: GoogleFonts.outfit(
                           fontSize: 12,
-                          color: const Color(0xFF168A3A).withValues(alpha: 0.5),
+                          color: colors.textSecondary,
                         ),
                       ),
                     ],

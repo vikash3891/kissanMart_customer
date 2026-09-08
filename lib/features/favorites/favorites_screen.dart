@@ -32,8 +32,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final cartProvider = context.watch<CartProvider>();
     final favorites = wishlistProvider.wishlistItems;
 
+    final colors = context.colors;
     return Scaffold(
-      backgroundColor: kBg,
+      backgroundColor: colors.surface,
       appBar: AppBar(
         title: const Text('My Wishlist'),
         actions: [
@@ -60,17 +61,17 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             const SnackBar(content: Text('Wishlist cleared')),
                           );
                         },
-                        child: const Text('Clear All',
-                            style: TextStyle(color: Colors.red)),
+                        child: Text('Clear All',
+                            style: TextStyle(color: colors.danger)),
                       ),
                     ],
                   ),
                 );
               },
-              child: const Text(
+              child: Text(
                 'Clear All',
                 style:
-                    TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                    TextStyle(color: colors.danger, fontWeight: FontWeight.bold),
               ),
             ),
         ],
@@ -81,6 +82,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   Widget _buildBody(WishlistProvider wishlistProvider,
       CartProvider cartProvider, List<Product> favorites) {
+    final colors = context.colors;
     if (wishlistProvider.loading) {
       return const LoadingWidget(message: 'Loading your favorites...');
     }
@@ -96,15 +98,15 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
     return RefreshIndicator(
       onRefresh: () => wishlistProvider.loadWishlist(),
-      color: kGreen,
+      color: colors.primary,
       child: GridView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: favorites.length,
         gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
           maxCrossAxisExtent: 220,
-          mainAxisExtent: 310,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
+          mainAxisExtent: 280,
+          crossAxisSpacing: 6,
+          mainAxisSpacing: 6,
         ),
         itemBuilder: (context, index) {
           final product = favorites[index];
@@ -132,13 +134,14 @@ class _WishlistProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey[200]!),
+        side: BorderSide(color: colors.border),
       ),
-      color: Colors.white,
+      color: colors.card,
       child: InkWell(
         onTap: () => Navigator.push(
           context,
@@ -156,7 +159,7 @@ class _WishlistProductCard extends StatelessWidget {
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: kLightGreen.withValues(alpha: 0.2),
+                    color: colors.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: ClipRRect(
@@ -179,11 +182,11 @@ class _WishlistProductCard extends StatelessWidget {
                           child: CircleAvatar(
                             radius: 16,
                             backgroundColor:
-                                Colors.white.withValues(alpha: 0.9),
+                                colors.surface.withValues(alpha: 0.9),
                             child: IconButton(
                               iconSize: 16,
                               padding: EdgeInsets.zero,
-                              icon: const Icon(Icons.close, color: Colors.grey),
+                              icon: Icon(Icons.close, color: colors.textSecondary),
                               onPressed: () => _removeFromWishlist(context),
                             ),
                           ),
@@ -208,7 +211,7 @@ class _WishlistProductCard extends StatelessWidget {
               // Unit
               Text(
                 product.unit,
-                style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                style: TextStyle(color: colors.textSecondary, fontSize: 12),
               ),
               const SizedBox(height: 8),
 
@@ -221,17 +224,17 @@ class _WishlistProductCard extends StatelessWidget {
                     children: [
                       Text(
                         '₹${product.price.toStringAsFixed(0)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            color: kDark),
+                            color: colors.textPrimary),
                       ),
                       if (product.mrp > product.price)
                         Text(
                           '₹${product.mrp.toStringAsFixed(0)}',
                           style: TextStyle(
                             decoration: TextDecoration.lineThrough,
-                            color: Colors.grey[500],
+                            color: colors.textSecondary,
                             fontSize: 12,
                           ),
                         ),
@@ -240,7 +243,7 @@ class _WishlistProductCard extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () => _moveToCart(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: kGreen,
+                      backgroundColor: colors.primary,
                       foregroundColor: Colors.white,
                       elevation: 0,
                       shape: RoundedRectangleBorder(
@@ -272,7 +275,7 @@ class _WishlistProductCard extends StatelessWidget {
           content: Text('Removed ${product.name} from wishlist'),
           action: SnackBarAction(
             label: 'Undo',
-            textColor: Colors.orange[300],
+            textColor: context.colors.offer,
             onPressed: () {
               wishlistProvider.addToWishlist(product.id);
             },
@@ -299,7 +302,7 @@ class _WishlistProductCard extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Moved ${product.name} to Cart'),
-            backgroundColor: kGreen,
+            backgroundColor: context.colors.primary,
             action: SnackBarAction(
               label: 'Undo',
               textColor: Colors.white,

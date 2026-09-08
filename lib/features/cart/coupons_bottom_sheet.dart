@@ -38,14 +38,15 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<CouponProvider>();
+    final colors = context.colors;
 
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      decoration: const BoxDecoration(
-        color: kBg,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -56,7 +57,7 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: Colors.grey[300],
+              color: colors.disabled,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -68,20 +69,20 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Apply Coupon',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: kDark,
+                    color: colors.textPrimary,
                   ),
                 ),
                 TextButton(
                   onPressed: () => provider.autoApplyBest(widget.orderAmount),
-                  child: const Text(
+                  child: Text(
                     'Auto Apply Best',
                     style:
-                        TextStyle(fontWeight: FontWeight.bold, color: kGreen),
+                        TextStyle(fontWeight: FontWeight.bold, color: colors.primary),
                   ),
                 ),
               ],
@@ -104,11 +105,11 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
                           horizontal: 16, vertical: 12),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide(color: Colors.grey[300]!),
+                        borderSide: BorderSide(color: colors.border),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8),
-                        borderSide: const BorderSide(color: kGreen),
+                        borderSide: BorderSide(color: colors.primary),
                       ),
                     ),
                     textCapitalization: TextCapitalization.characters,
@@ -132,13 +133,13 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
                               SnackBar(
                                 content: Text(
                                     provider.error ?? 'Failed to apply coupon'),
-                                backgroundColor: Colors.red,
+                                backgroundColor: colors.danger,
                               ),
                             );
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: kGreen,
+                    backgroundColor: colors.primary,
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -163,6 +164,7 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
   }
 
   Widget _buildCouponsList(CouponProvider provider) {
+    final colors = context.colors;
     if (provider.loading) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 40),
@@ -198,12 +200,12 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
               color: provider.appliedCoupon?.couponCode == coupon.code
-                  ? kGreen
-                  : Colors.grey[200]!,
+                  ? colors.primary
+                  : colors.border,
               width: provider.appliedCoupon?.couponCode == coupon.code ? 2 : 1,
             ),
           ),
-          color: Colors.white,
+          color: colors.card,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -217,8 +219,8 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
                         color: isEligible
-                            ? kGreen.withValues(alpha: 0.1)
-                            : Colors.grey[100],
+                            ? colors.primary.withValues(alpha: 0.1)
+                            : colors.disabled.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -226,7 +228,7 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
                         style: TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: isEligible ? kGreen : Colors.grey[600],
+                          color: isEligible ? colors.primary : colors.textSecondary,
                         ),
                       ),
                     ),
@@ -240,10 +242,10 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
                             Navigator.pop(context, true);
                           }
                         },
-                        child: const Text(
+                        child: Text(
                           'APPLY',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold, color: kGreen),
+                              fontWeight: FontWeight.bold, color: colors.primary),
                         ),
                       )
                     else
@@ -251,7 +253,7 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
                         'Add ₹${(coupon.minimumOrderAmount - widget.orderAmount).toStringAsFixed(0)} more',
                         style: TextStyle(
                             fontSize: 12,
-                            color: Colors.red[400],
+                            color: colors.danger,
                             fontWeight: FontWeight.bold),
                       ),
                   ],
@@ -268,15 +270,15 @@ class _CouponsBottomSheetState extends State<CouponsBottomSheet> {
                   children: [
                     Text(
                       'Expires: ${_formatDate(coupon.expiryDate)}',
-                      style: TextStyle(fontSize: 11, color: Colors.grey[500]),
+                      style: TextStyle(fontSize: 11, color: colors.textSecondary),
                     ),
                     if (isEligible && potentialSavings > 0)
                       Text(
                         'Saves ₹${potentialSavings.toStringAsFixed(0)}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
-                          color: kGreen,
+                          color: colors.primary,
                         ),
                       ),
                   ],

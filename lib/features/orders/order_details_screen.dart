@@ -174,7 +174,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                     'Payment Status',
                     order.paymentStatus.toUpperCase(),
                     valueColor: order.paymentStatus.toLowerCase() == 'paid'
-                        ? kGreen
+                        ? context.colors.primary
                         : Colors.orange,
                   ),
                 ],
@@ -360,7 +360,7 @@ class OrderStatusTimeline extends StatelessWidget {
                       color: isCurrent
                           ? Colors.black87
                           : isCompleted
-                              ? Colors.green
+                              ? context.colors.primary
                               : Colors.grey[500],
                     ),
                   ),

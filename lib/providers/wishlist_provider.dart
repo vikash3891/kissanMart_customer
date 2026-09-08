@@ -153,4 +153,11 @@ class WishlistProvider extends ChangeNotifier {
       isAvailable: p.isAvailable,
     );
   }
+
+  void clear() {
+    _favoriteIds.clear();
+    _wishlistItems.clear();
+    _error = null;
+    notifyListeners();
+  }
 }

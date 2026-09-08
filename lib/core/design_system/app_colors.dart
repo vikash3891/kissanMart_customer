@@ -55,7 +55,7 @@ extension AppThemePresetExtension on AppThemePreset {
   }
 }
 
-class AppColorTokens {
+class AppColorTokens extends ThemeExtension<AppColorTokens> {
   final Color primary;
   final Color secondary;
   final Color success;
@@ -113,6 +113,103 @@ class AppColorTokens {
     required this.shimmerHighlight,
     required this.skeleton,
   });
+
+  @override
+  AppColorTokens copyWith({
+    Color? primary,
+    Color? secondary,
+    Color? success,
+    Color? warning,
+    Color? danger,
+    Color? background,
+    Color? surface,
+    Color? card,
+    Color? border,
+    Color? divider,
+    Color? textPrimary,
+    Color? textSecondary,
+    Color? disabled,
+    Color? hint,
+    Color? badge,
+    Color? coupon,
+    Color? rating,
+    Color? organic,
+    Color? offer,
+    Color? delivery,
+    Color? wishlist,
+    Color? flashSale,
+    Color? searchBg,
+    Color? navigationBg,
+    Color? shimmerBase,
+    Color? shimmerHighlight,
+    Color? skeleton,
+  }) {
+    return AppColorTokens(
+      primary: primary ?? this.primary,
+      secondary: secondary ?? this.secondary,
+      success: success ?? this.success,
+      warning: warning ?? this.warning,
+      danger: danger ?? this.danger,
+      background: background ?? this.background,
+      surface: surface ?? this.surface,
+      card: card ?? this.card,
+      border: border ?? this.border,
+      divider: divider ?? this.divider,
+      textPrimary: textPrimary ?? this.textPrimary,
+      textSecondary: textSecondary ?? this.textSecondary,
+      disabled: disabled ?? this.disabled,
+      hint: hint ?? this.hint,
+      badge: badge ?? this.badge,
+      coupon: coupon ?? this.coupon,
+      rating: rating ?? this.rating,
+      organic: organic ?? this.organic,
+      offer: offer ?? this.offer,
+      delivery: delivery ?? this.delivery,
+      wishlist: wishlist ?? this.wishlist,
+      flashSale: flashSale ?? this.flashSale,
+      searchBg: searchBg ?? this.searchBg,
+      navigationBg: navigationBg ?? this.navigationBg,
+      shimmerBase: shimmerBase ?? this.shimmerBase,
+      shimmerHighlight: shimmerHighlight ?? this.shimmerHighlight,
+      skeleton: skeleton ?? this.skeleton,
+    );
+  }
+
+  @override
+  AppColorTokens lerp(ThemeExtension<AppColorTokens>? other, double t) {
+    if (other is! AppColorTokens) {
+      return this;
+    }
+    return AppColorTokens(
+      primary: Color.lerp(primary, other.primary, t)!,
+      secondary: Color.lerp(secondary, other.secondary, t)!,
+      success: Color.lerp(success, other.success, t)!,
+      warning: Color.lerp(warning, other.warning, t)!,
+      danger: Color.lerp(danger, other.danger, t)!,
+      background: Color.lerp(background, other.background, t)!,
+      surface: Color.lerp(surface, other.surface, t)!,
+      card: Color.lerp(card, other.card, t)!,
+      border: Color.lerp(border, other.border, t)!,
+      divider: Color.lerp(divider, other.divider, t)!,
+      textPrimary: Color.lerp(textPrimary, other.textPrimary, t)!,
+      textSecondary: Color.lerp(textSecondary, other.textSecondary, t)!,
+      disabled: Color.lerp(disabled, other.disabled, t)!,
+      hint: Color.lerp(hint, other.hint, t)!,
+      badge: Color.lerp(badge, other.badge, t)!,
+      coupon: Color.lerp(coupon, other.coupon, t)!,
+      rating: Color.lerp(rating, other.rating, t)!,
+      organic: Color.lerp(organic, other.organic, t)!,
+      offer: Color.lerp(offer, other.offer, t)!,
+      delivery: Color.lerp(delivery, other.delivery, t)!,
+      wishlist: Color.lerp(wishlist, other.wishlist, t)!,
+      flashSale: Color.lerp(flashSale, other.flashSale, t)!,
+      searchBg: Color.lerp(searchBg, other.searchBg, t)!,
+      navigationBg: Color.lerp(navigationBg, other.navigationBg, t)!,
+      shimmerBase: Color.lerp(shimmerBase, other.shimmerBase, t)!,
+      shimmerHighlight: Color.lerp(shimmerHighlight, other.shimmerHighlight, t)!,
+      skeleton: Color.lerp(skeleton, other.skeleton, t)!,
+    );
+  }
 }
 
 class AppColors {
@@ -436,3 +533,15 @@ class AppColors {
     }
   }
 }
+
+extension BuildContextColorTokens on BuildContext {
+  AppColorTokens get colors {
+    final ext = Theme.of(this).extension<AppColorTokens>();
+    if (ext != null) return ext;
+    return AppColors.getTokens(
+      AppThemePreset.kisaanGreen,
+      Theme.of(this).brightness,
+    );
+  }
+}
+

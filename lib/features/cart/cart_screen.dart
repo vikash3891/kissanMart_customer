@@ -31,7 +31,8 @@ class CartScreen extends StatelessWidget {
             child: const Text('Cancel'),
           ),
           TextButton(
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            style: TextButton.styleFrom(
+                foregroundColor: context.colors.danger),
             onPressed: () => Navigator.pop(context, true),
             child: const Text('Clear'),
           ),
@@ -75,7 +76,8 @@ class CartScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Center(
               child: FilledButton(
-                style: FilledButton.styleFrom(backgroundColor: kGreen),
+                style: FilledButton.styleFrom(
+                    backgroundColor: context.colors.primary),
                 onPressed: () => context.read<NavigationProvider>().setTab(0),
                 child: const Text('Start Shopping'),
               ),
@@ -93,9 +95,9 @@ class CartScreen extends StatelessWidget {
         title: const Text('My Cart'),
         actions: [
           TextButton.icon(
-            icon: const Icon(Icons.delete_sweep, color: Colors.red),
-            label:
-                const Text('Clear Cart', style: TextStyle(color: Colors.red)),
+            icon: Icon(Icons.delete_sweep, color: context.colors.danger),
+            label: Text('Clear Cart',
+                style: TextStyle(color: context.colors.danger)),
             onPressed: () => _showClearCartConfirm(context, cartProvider),
           ),
         ],
@@ -108,16 +110,16 @@ class CartScreen extends StatelessWidget {
             if (cartProvider.error != null)
               Container(
                 margin: const EdgeInsets.only(bottom: 12),
-                color: Colors.red[50],
+                color: context.colors.danger.withValues(alpha: 0.1),
                 padding: const EdgeInsets.all(10),
                 child: Row(
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.red),
+                    Icon(Icons.error_outline, color: context.colors.danger),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         cartProvider.error!,
-                        style: const TextStyle(color: Colors.red),
+                        style: TextStyle(color: context.colors.danger),
                       ),
                     ),
                   ],
@@ -162,7 +164,7 @@ class CartScreen extends StatelessWidget {
                                 .contains(item.id),
                             onChanged: (_) =>
                                 cartProvider.toggleSelection(item.id),
-                            activeColor: kGreen,
+                            activeColor: context.colors.primary,
                           ),
                           const SizedBox(width: 4),
                           item.imageUrl.isEmpty
@@ -190,10 +192,10 @@ class CartScreen extends StatelessWidget {
                           const SizedBox(height: 4),
                           InkWell(
                             onTap: () => cartProvider.saveForLater(p),
-                            child: const Text(
+                            child: Text(
                               'Save for later',
                               style: TextStyle(
-                                color: Colors.blue,
+                                color: context.colors.primary,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 12,
                               ),
@@ -253,7 +255,7 @@ class CartScreen extends StatelessWidget {
             // Proceed to Checkout CTA
             FilledButton(
               style: FilledButton.styleFrom(
-                backgroundColor: kGreen,
+                backgroundColor: context.colors.primary,
                 padding: const EdgeInsets.all(16),
               ),
               onPressed: cartProvider.selectedCartItemIds.isEmpty
@@ -335,11 +337,13 @@ class CartScreen extends StatelessWidget {
               title: Text(p.name),
               subtitle: Text('${p.unit} • ₹${p.price.toStringAsFixed(0)}'),
               trailing: TextButton.icon(
-                icon: const Icon(Icons.add_shopping_cart,
-                    color: kGreen, size: 18),
-                label: const Text(
+                icon: Icon(Icons.add_shopping_cart,
+                    color: context.colors.primary, size: 18),
+                label: Text(
                   'Move to Cart',
-                  style: TextStyle(color: kGreen, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                      color: context.colors.primary,
+                      fontWeight: FontWeight.bold),
                 ),
                 onPressed: () => cartProvider.moveToCart(p),
               ),

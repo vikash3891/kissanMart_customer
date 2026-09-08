@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import '../theme/app_colors.dart';
 
 class ShimmerPlaceholder extends StatelessWidget {
   final double width;
@@ -15,14 +16,15 @@ class ShimmerPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: colors.shimmerBase,
+      highlightColor: colors.shimmerHighlight,
       child: Container(
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: colors.skeleton,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
@@ -84,9 +86,9 @@ class ProductGridSkeleton extends StatelessWidget {
 
     final gridDelegate = const SliverGridDelegateWithMaxCrossAxisExtent(
       maxCrossAxisExtent: 230,
-      mainAxisExtent: 285,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
+      mainAxisExtent: 280,
+      crossAxisSpacing: 6,
+      mainAxisSpacing: 6,
     );
 
     if (isSliver) {
@@ -159,6 +161,7 @@ class ProductDetailSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Column(
       children: [
         Expanded(
@@ -236,7 +239,7 @@ class ProductDetailSkeleton extends StatelessWidget {
         ),
         Container(
           padding: const EdgeInsets.all(16),
-          color: Colors.white,
+          color: colors.surface,
           child: const Row(
             children: [
               Expanded(

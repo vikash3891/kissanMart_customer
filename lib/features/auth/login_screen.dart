@@ -64,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
+    final colors = context.colors;
 
     return Scaffold(
       body: Center(
@@ -79,25 +80,29 @@ class _LoginScreenState extends State<LoginScreen> {
                 Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      colors: [kLightGreen, Color(0xFFFFF7DC)],
+                    gradient: LinearGradient(
+                      colors: [
+                        colors.primary.withValues(alpha: 0.15),
+                        colors.offer.withValues(alpha: 0.12),
+                      ],
                     ),
                     borderRadius: BorderRadius.circular(32),
                   ),
-                  child: const Column(
+                  child: Column(
                     children: [
-                      Text('🌿', style: TextStyle(fontSize: 56)),
-                      SizedBox(height: 8),
+                      const Text('🌿', style: TextStyle(fontSize: 56)),
+                      const SizedBox(height: 8),
                       Text(
                         'Kisaan Kart',
                         style: TextStyle(
                           fontSize: 34,
                           fontWeight: FontWeight.w900,
+                          color: colors.textPrimary,
                         ),
                       ),
                       Text(
                         'Organic groceries delivered fast',
-                        style: TextStyle(color: Colors.black54),
+                        style: TextStyle(color: colors.textSecondary),
                       ),
                     ],
                   ),
@@ -147,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
                       _error!,
-                      style: const TextStyle(color: Colors.red),
+                      style: TextStyle(color: colors.danger),
                     ),
                   ),
 
@@ -156,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 // ── CTA button ─────────────────────────────────────────────
                 FilledButton(
                   style: FilledButton.styleFrom(
-                    backgroundColor: kGreen,
+                    backgroundColor: colors.primary,
                     padding: const EdgeInsets.all(16),
                   ),
                   onPressed: authProvider.isLoading ? null : _onPress,

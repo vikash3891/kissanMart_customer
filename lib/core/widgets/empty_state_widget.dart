@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../design_system/app_colors.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   final IconData icon;
@@ -18,21 +19,22 @@ class EmptyStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 72, color: Colors.grey[350]),
+            Icon(icon, size: 72, color: colors.disabled),
             const SizedBox(height: 16),
             Text(
               title,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.black87,
+                color: colors.textPrimary,
               ),
             ),
             if (subtitle != null) ...[
@@ -40,7 +42,7 @@ class EmptyStateWidget extends StatelessWidget {
               Text(
                 subtitle!,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                style: TextStyle(fontSize: 14, color: colors.textSecondary),
               ),
             ],
             if (actionLabel != null && onAction != null) ...[
@@ -50,7 +52,7 @@ class EmptyStateWidget extends StatelessWidget {
                 icon: const Icon(Icons.refresh, size: 18),
                 label: Text(actionLabel!),
                 style: FilledButton.styleFrom(
-                  backgroundColor: const Color(0xFF2E7D32),
+                  backgroundColor: colors.primary,
                 ),
               ),
             ],

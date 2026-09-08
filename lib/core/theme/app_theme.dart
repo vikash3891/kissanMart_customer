@@ -3,6 +3,10 @@ import '../design_system/app_colors.dart';
 import '../design_system/app_typography.dart';
 import '../design_system/app_radius.dart';
 
+export '../design_system/app_colors.dart';
+export '../design_system/app_typography.dart';
+export '../design_system/app_radius.dart';
+
 /// Central dynamic ThemeData generator.
 class AppTheme {
   AppTheme._();
@@ -18,6 +22,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
+      extensions: [tokens],
       scaffoldBackgroundColor: tokens.background,
       primaryColor: tokens.primary,
       dividerColor: tokens.divider,
@@ -115,6 +120,33 @@ class AppTheme {
         bodyMedium: AppTypography.bodyMedium(color: tokens.textPrimary),
         bodySmall: AppTypography.bodySmall(color: tokens.textSecondary),
         labelLarge: AppTypography.button(color: tokens.textPrimary),
+      ),
+
+      // ─── Navigation Bar Theme ────────────────────────────────────────────────
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: tokens.surface,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: tokens.primary.withValues(alpha: 0.12),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return IconThemeData(color: tokens.primary, size: 24);
+          }
+          return IconThemeData(color: tokens.textSecondary, size: 24);
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return TextStyle(
+              color: tokens.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 12,
+            );
+          }
+          return TextStyle(
+            color: tokens.textSecondary,
+            fontWeight: FontWeight.w500,
+            fontSize: 12,
+          );
+        }),
       ),
     );
   }

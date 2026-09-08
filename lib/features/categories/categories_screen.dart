@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../providers/category_provider.dart';
+import '../../providers/product_provider.dart';
 import '../products/product_list_screen.dart';
 
 /// Categories tab.
@@ -58,6 +59,7 @@ class CategoriesScreen extends StatelessWidget {
                 subtitle: Text(category.description),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () {
+                  context.read<ProductProvider>().applyCategory(category.id);
                   Navigator.push(
                     context,
                     MaterialPageRoute(

@@ -23,21 +23,21 @@ class _OrdersScreenState extends State<OrdersScreen> {
     );
   }
 
-  Color _getStatusColor(String status) {
+  Color _getStatusColor(BuildContext context, String status) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return Colors.orange;
+        return context.colors.offer;
       case 'confirmed':
-        return Colors.blue;
+        return context.colors.primary;
       case 'packed':
-        return Colors.purple;
+        return context.colors.primary;
       case 'out for delivery':
       case 'delivered':
-        return kGreen;
+        return context.colors.primary;
       case 'cancelled':
-        return Colors.red;
+        return context.colors.danger;
       default:
-        return Colors.grey;
+        return context.colors.textSecondary;
     }
   }
 
@@ -67,15 +67,16 @@ class _OrdersScreenState extends State<OrdersScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<OrderProvider>();
+    final colors = context.colors;
 
     return Scaffold(
-      backgroundColor: kBg,
+      backgroundColor: colors.surface,
       appBar: AppBar(
         title: const Text('Your Orders',
             style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.white,
+        backgroundColor: colors.surface,
         elevation: 0.5,
-        foregroundColor: kDark,
+        foregroundColor: colors.textPrimary,
       ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -87,8 +88,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(provider.error!,
-                            style: const TextStyle(
-                                color: Colors.red, fontSize: 16)),
+                            style: TextStyle(
+                                color: colors.danger, fontSize: 16)),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           onPressed: provider.loadOrders,
@@ -105,19 +106,19 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         children: [
                           const Text('🌿', style: TextStyle(fontSize: 48)),
                           const SizedBox(height: 12),
-                          const Text('No orders found yet!',
+                          Text('No orders found yet!',
                               style:
-                                  TextStyle(fontSize: 18, color: Colors.grey)),
+                                  TextStyle(fontSize: 18, color: colors.textSecondary)),
                           const SizedBox(height: 8),
-                          const Text(
+                          Text(
                               'Grab some fresh groceries to get started.',
                               style:
-                                  TextStyle(fontSize: 14, color: Colors.grey)),
+                                  TextStyle(fontSize: 14, color: colors.textSecondary)),
                           const SizedBox(height: 16),
                           ElevatedButton(
                             onPressed: provider.loadOrders,
                             style: ElevatedButton.styleFrom(
-                                backgroundColor: kGreen,
+                                backgroundColor: colors.primary,
                                 foregroundColor: Colors.white),
                             child: const Text('Refresh'),
                           ),
@@ -133,15 +134,15 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         itemBuilder: (context, index) {
                           final order = provider.orders[index];
                           final statusColor =
-                              _getStatusColor(order.orderStatus);
+                              _getStatusColor(context, order.orderStatus);
 
                           return Card(
                             margin: const EdgeInsets.only(bottom: 16),
                             elevation: 0,
-                            color: Colors.white,
+                            color: colors.card,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(22),
-                              side: BorderSide(color: Colors.grey[100]!),
+                              side: BorderSide(color: colors.border),
                             ),
                             child: InkWell(
                               onTap: () => Navigator.push(
@@ -171,10 +172,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                         ),
                                         Text(
                                           '₹${order.finalAmount.toStringAsFixed(2)}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               fontWeight: FontWeight.w900,
                                               fontSize: 18,
-                                              color: kDark),
+                                              color: colors.textPrimary),
                                         ),
                                       ],
                                     ),
@@ -182,8 +183,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                     // Row 2: Date
                                     Text(
                                       _formatDate(order.createdAt),
-                                      style: const TextStyle(
-                                          color: Colors.grey, fontSize: 13),
+                                      style: TextStyle(
+                                          color: colors.textSecondary, fontSize: 13),
                                     ),
                                     const SizedBox(height: 12),
                                     const Divider(height: 1),
@@ -225,15 +226,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                         ),
                                                         errorWidget: (_, __,
                                                                 ___) =>
-                                                            const Icon(
+                                                            Icon(
                                                                 Icons.image,
                                                                 size: 20,
-                                                                color: Colors
-                                                                    .grey),
+                                                                color: colors.disabled),
                                                       )
-                                                    : const Icon(Icons.image,
+                                                    : Icon(Icons.image,
                                                         size: 20,
-                                                        color: Colors.grey),
+                                                        color: colors.disabled),
                                               ),
                                             );
                                           }).toList() +
@@ -243,22 +243,20 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                                 width: 54,
                                                 height: 54,
                                                 decoration: BoxDecoration(
-                                                  color:
-                                                      const Color(0xFFF3F4F8),
+                                                  color: colors.skeleton,
                                                   border: Border.all(
-                                                      color: const Color(
-                                                          0xFFE5E7EB)),
+                                                      color: colors.border),
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                 ),
                                                 child: Center(
                                                   child: Text(
                                                     '+${order.items.length - 4}',
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         fontSize: 13,
-                                                        color: Colors.black87),
+                                                        color: colors.textPrimary),
                                                   ),
                                                 ),
                                               )
@@ -291,9 +289,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                         ),
                                         Text(
                                           'Payment: ${order.paymentMethod.toUpperCase()} (${order.paymentStatus.toUpperCase()})',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                               fontSize: 12,
-                                              color: Colors.black54,
+                                              color: colors.textSecondary,
                                               fontWeight: FontWeight.bold),
                                         ),
                                       ],

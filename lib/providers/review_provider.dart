@@ -92,12 +92,12 @@ class ReviewProvider extends ChangeNotifier {
   }
 
   /// Adds a review to a product.
-  Future<bool> addReview(int productId, double rating, String comment) async {
+  Future<bool> addReview(int productId, double rating, String comment, {List<String>? imagePaths}) async {
     _submitting = true;
     _error = null;
     notifyListeners();
     try {
-      await _repository.addReview(productId, rating, comment);
+      await _repository.addReview(productId, rating, comment, imagePaths: imagePaths);
       _error = null;
       await fetchReviews(productId); // Refresh list
       return true;
@@ -114,12 +114,12 @@ class ReviewProvider extends ChangeNotifier {
 
   /// Updates a review.
   Future<bool> updateReview(
-      int reviewId, double rating, String comment, int productId) async {
+      int reviewId, double rating, String comment, int productId, {List<String>? imagePaths}) async {
     _submitting = true;
     _error = null;
     notifyListeners();
     try {
-      await _repository.updateReview(reviewId, rating, comment);
+      await _repository.updateReview(reviewId, rating, comment, imagePaths: imagePaths);
       _error = null;
       await fetchReviews(productId); // Refresh list
       return true;

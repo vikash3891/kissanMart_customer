@@ -12,10 +12,12 @@ import '../../providers/navigation_provider.dart';
 import '../../providers/product_provider.dart';
 import '../../providers/order_provider.dart';
 import '../../providers/home_provider.dart';
+import '../../providers/address_provider.dart';
 import '../../api_models/api_banner.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/product_utils.dart';
 import '../products/product_list_screen.dart';
+import '../address/address_screen.dart';
 
 /// Home tab.
 ///
@@ -35,8 +37,33 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<HomeProvider>().loadHomeData();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final homeProvider = context.read<HomeProvider>();
+      await homeProvider.loadHomeData();
+
+      // Pre-cache banners and category icons to eliminate flicker
+      if (mounted) {
+        final banners = homeProvider.banners;
+        final categories = homeProvider.categories.where((category) =>
+            category.name.toLowerCase() != 'grains').toList();
+
+        for (final b in banners) {
+          if (b.imageUrl.isNotEmpty) {
+            precacheImage(
+              CachedNetworkImageProvider(b.imageUrl),
+              context,
+            ).ignore();
+          }
+        }
+        for (final c in categories) {
+          if (c.imageUrl.isNotEmpty) {
+            precacheImage(
+              CachedNetworkImageProvider(c.imageUrl),
+              context,
+            ).ignore();
+          }
+        }
+      }
     });
   }
 
@@ -45,8 +72,13 @@ class _HomeScreenState extends State<HomeScreen> {
     final homeProvider = context.watch<HomeProvider>();
     final productProvider = context.watch<ProductProvider>();
     final orderProvider = context.watch<OrderProvider>();
+    final addressProvider = context.watch<AddressProvider>();
+    final colors = context.colors;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final topPadding = MediaQuery.of(context).padding.top;
 
-    final categories = homeProvider.categories;
+    final categories = homeProvider.categories.where((category) =>
+        category.name.toLowerCase() != 'grains').toList();
     final trendingProducts = homeProvider.trendingProducts;
     final offerProducts = homeProvider.offerProducts;
     final homeHasError = homeProvider.error != null;
@@ -64,56 +96,141 @@ class _HomeScreenState extends State<HomeScreen> {
           // ── Header (gradient + search + category strip) ────────────────────
           SliverToBoxAdapter(
             child: Container(
-              padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
-              decoration: const BoxDecoration(
+              padding: EdgeInsets.fromLTRB(18, topPadding + 18, 18, 18),
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFFE5FFD8), Color(0xFFFFE5C8)],
+                  colors: isDark
+                      ? [colors.card, colors.surface.withValues(alpha: 0.95)]
+                      : const [Color(0xFFE5FFD8), Color(0xFFFFE5C8)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Delivery row
+                  // ── Branding + Address Row ────────────────────────────────
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Kisaan Kart in',
-                              style: TextStyle(fontWeight: FontWeight.w800),
+                      // 🛒 Kisaan Kart Branding
+                      Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: colors.primary,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            Text(
-                              '15 minutes',
-                              style: TextStyle(
-                                fontSize: 32,
-                                fontWeight: FontWeight.w900,
-                              ),
+                            child: const Icon(
+                              Icons.shopping_basket_rounded,
+                              color: Colors.white,
+                              size: 20,
                             ),
-                            Text('HOME - Floor 4th, Room 403 ▼'),
-                          ],
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Kisaan Kart',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 18,
+                              color: colors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const Spacer(),
+                      // 📍 Deliver To — tappable address block
+                      GestureDetector(
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const AddressScreen(),
+                            ),
+                          );
+                          // Auto-refresh: AddressProvider is global, state
+                          // updates propagate automatically when returned.
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? colors.surface
+                                : Colors.white.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: colors.primary.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Builder(builder: (context) {
+                            final addr = addressProvider.selectedAddress;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.location_on, size: 12, color: colors.primary),
+                                    const SizedBox(width: 2),
+                                    Text(
+                                      'Deliver To',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        color: colors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 1),
+                                Row(
+                                  children: [
+                                    Text(
+                                      addr != null
+                                          ? (addr.addressType.isNotEmpty
+                                              ? '${addr.addressType[0].toUpperCase()}${addr.addressType.substring(1)}'
+                                              : 'Home')
+                                          : 'Select Address',
+                                      style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: addr != null
+                                            ? colors.textPrimary
+                                            : colors.primary,
+                                      ),
+                                    ),
+                                    Icon(Icons.keyboard_arrow_down_rounded,
+                                        size: 16, color: colors.textSecondary),
+                                  ],
+                                ),
+                                if (addr != null)
+                                  Text(
+                                    '${addr.houseNo}, ${addr.area}'.length > 20
+                                        ? '${'${addr.houseNo}, ${addr.area}'.substring(0, 20)}…'
+                                        : '${addr.houseNo}, ${addr.area}',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: colors.textSecondary,
+                                    ),
+                                  ),
+                              ],
+                            );
+                          }),
                         ),
-                      ),
-                      IconButton.filledTonal(
-                        onPressed: () =>
-                            context.read<NavigationProvider>().setTab(2),
-                        icon: const Icon(Icons.shopping_cart_outlined),
-                      ),
-                      IconButton.filledTonal(
-                        onPressed: () =>
-                            context.read<NavigationProvider>().setTab(4),
-                        icon: const Icon(Icons.person_outline),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 10),
 
                   // Search — debounced + onSubmitted → ProductProvider.search() → API
-                  SearchBox(
-                    initial: productProvider.searchQuery,
-                    onChanged: productProvider.searchProducts,
+                  SizedBox(
+                    height: 44,
+                    child: SearchBox(
+                      initial: productProvider.searchQuery,
+                      onChanged: productProvider.searchProducts,
+                    ),
                   ),
 
                   // Only show Category strip on home if not searching
@@ -128,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     // Category horizontal scroll
                     SizedBox(
-                      height: 95,
+                      height: 120,
                       child: homeProvider.loading && categories.isEmpty
                           ? const Center(child: CircularProgressIndicator())
                           : ListView.separated(
@@ -140,6 +257,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 final category = categories[index];
                                 return InkWell(
                                   onTap: () {
+                                    context.read<ProductProvider>().applyCategory(category.id);
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -153,18 +271,18 @@ class _HomeScreenState extends State<HomeScreen> {
                                   child: Column(
                                     children: [
                                       Container(
-                                        width: 56,
-                                        height: 56,
-                                        decoration: const BoxDecoration(
+                                        width: 64,
+                                        height: 64,
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Color(0xFFF3F4F8),
+                                          color: context.colors.skeleton,
                                         ),
                                         child: ClipOval(
                                           child: category.imageUrl.isEmpty
-                                              ? const Icon(Icons.category,
-                                                  color: Colors.grey)
+                                              ? Icon(Icons.category,
+                                                  color: context.colors.disabled)
                                               : CachedNetworkImage(
-                                                  imageUrl: category.imageUrl,
+                                                  imageUrl: sanitizeImageUrl(category.imageUrl, category: category.name),
                                                   fit: BoxFit.cover,
                                                   placeholder: (context, url) =>
                                                       const Center(
@@ -178,8 +296,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ),
                                                   errorWidget: (context, url,
                                                           error) =>
-                                                      const Icon(Icons.category,
-                                                          color: Colors.grey),
+                                                      Icon(Icons.category,
+                                                          color: context.colors.disabled),
                                                 ),
                                         ),
                                       ),
@@ -262,6 +380,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               width: 160,
                               child: ProductCard(
                                 product: trendingProducts[index],
+                                heroTagPrefix: 'trending_${index}_',
                               ),
                             );
                           },
@@ -287,20 +406,28 @@ class _HomeScreenState extends State<HomeScreen> {
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 12),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: offerProducts.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 230,
-                          mainAxisExtent: 285,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
                         ),
-                        itemBuilder: (context, index) {
-                          return ProductCard(product: offerProducts[index]);
-                        },
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: offerProducts.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 210,
+                            mainAxisExtent: 280,
+                            crossAxisSpacing: 6,
+                            mainAxisSpacing: 6,
+                          ),
+                          itemBuilder: (context, index) {
+                            return ProductCard(
+                              product: offerProducts[index],
+                              heroTagPrefix: 'offers_${index}_',
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -381,11 +508,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     if (productProvider.isLoading)
-                      const SizedBox(
+                      SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: kGreen),
+                            strokeWidth: 2, color: context.colors.primary),
                       ),
                   ],
                 ),
@@ -418,19 +545,28 @@ class _HomeScreenState extends State<HomeScreen> {
             else
               SliverPadding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 230,
-                    mainAxisExtent: 285,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                sliver: DecoratedSliver(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      return ProductCard(product: searchProducts[index]);
-                    },
-                    childCount: searchProducts.length,
+                  sliver: SliverGrid(
+                    gridDelegate:
+                        const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 210,
+                      mainAxisExtent: 280,
+                      crossAxisSpacing: 6,
+                      mainAxisSpacing: 6,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return ProductCard(
+                          product: searchProducts[index],
+                          heroTagPrefix: 'search_${index}_',
+                        );
+                      },
+                      childCount: searchProducts.length,
+                    ),
                   ),
                 ),
               ),
@@ -562,8 +698,8 @@ class _BannerCarouselState extends State<BannerCarousel> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4),
                 color: _current == index
-                    ? kGreen
-                    : kGreen.withValues(alpha: 0.25),
+                    ? context.colors.primary
+                    : context.colors.primary.withValues(alpha: 0.25),
               ),
             ),
           ),

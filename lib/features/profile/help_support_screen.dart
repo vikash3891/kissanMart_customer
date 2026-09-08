@@ -7,6 +7,7 @@ class HelpSupportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
     return Scaffold(
       appBar: AppBar(title: const Text('Help & Support')),
       body: ListView(
@@ -50,9 +51,9 @@ class HelpSupportScreen extends StatelessWidget {
             title: 'Contact Us',
             children: [
               ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: kLightGreen,
-                  child: Icon(Icons.email_outlined, color: kGreen),
+                leading: CircleAvatar(
+                  backgroundColor: colors.primary.withValues(alpha: 0.1),
+                  child: Icon(Icons.email_outlined, color: colors.primary),
                 ),
                 title: const Text('Email Support'),
                 subtitle: const Text('support@kisaankart.com'),
@@ -63,9 +64,9 @@ class HelpSupportScreen extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: kLightGreen,
-                  child: Icon(Icons.phone_outlined, color: kGreen),
+                leading: CircleAvatar(
+                  backgroundColor: colors.primary.withValues(alpha: 0.1),
+                  child: Icon(Icons.phone_outlined, color: colors.primary),
                 ),
                 title: const Text('Call Us'),
                 subtitle: const Text('+91-XXXXXXXXXX'),
@@ -76,9 +77,9 @@ class HelpSupportScreen extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: kLightGreen,
-                  child: Icon(Icons.chat_bubble_outline, color: kGreen),
+                leading: CircleAvatar(
+                  backgroundColor: colors.primary.withValues(alpha: 0.1),
+                  child: Icon(Icons.chat_bubble_outline, color: colors.primary),
                 ),
                 title: const Text('Live Chat'),
                 subtitle: const Text('Available 9 AM - 9 PM'),

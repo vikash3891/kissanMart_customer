@@ -203,4 +203,8 @@ class AddressProvider extends ChangeNotifier {
   Future<void> refresh() {
     return loadAddresses();
   }
+
+  void clear() {
+    _addresses = []; _selectedAddress = null; _error = null; notifyListeners();
+  }
 }
